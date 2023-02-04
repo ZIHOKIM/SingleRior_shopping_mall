@@ -1,0 +1,681 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mtbatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="adminMapper">
+
+	<resultMap type="Product" id="ProductResultSet">
+		<id column="board_no" property="boardNo"/>
+		<result column="board_type" property="boardType"/>
+		<result column="board_title" property="productName"/>
+		<result column="board_content" property="productContent"/>
+		<result column="create_date" property="createDate"/>
+		<result column="modify_date" property="modifyDate"/>
+		<result column="notice_status" property="noticeStatus"/>
+		<result column="b_status" property="boardStatus"/>
+		<result column="board_writer" property="boardWriter"/>
+		<result column="board_count" property="boardCount"/>
+		<result column="REPORT_STATUS" property="reportStatus"/>
+		<result column="product_no" property="productNo"/>
+		<result column="product_price" property="productPrice"/>
+		<result column="product_discount" property="productDiscount"/>
+		<result column="product_option" property="productOption"/>
+		<result column="model_name" property="modelName"/>
+		<result column="brand" property="brand"/>
+		<result column="PRODUCT_STATUS" property="productStatus"/>
+		<result column="PRO_SUBCATE_CODE" property="proSubCateCode"/>
+	</resultMap>
+	
+	<resultMap type="Attachment" id="attachmentResultSet">
+		<id property="imgNo" column="IMG_NO"/>
+		<result property="imgOriginalName" column="IMG_NAME"/>
+		<result property="imgRename" column="IMG_SERVER_NAME"/>
+		<result property="imgCreateDate" column="IMG_CREATE_DATE"/>
+		<result property="imgModifyDate" column="IMG_CREATE_DATE"/>
+		<result property="imgKey" column="IMG_KEY"/>
+		<result property="imgPath" column="IMG_PATH"/>
+		<result property="imgStatus" column="IMG_STATUS"/>
+		<result property="level" column="IMG_LEVEL"/>
+		<result property="boardType" column="IMG_B_TYPE"/>
+	</resultMap>
+	
+	<resultMap type="Member" id="MemberResultSet">
+		<id column="MEMBER_ID" property="memberId"/>
+		<result column="MEMBER_PWD" property="memberPwd"/>
+		<result column="MEMBER_NAME" property="memberName"/>
+		<result column="NICKNAME" property="nickName"/>
+		<result column="PHONE" property="phone"/>
+		<result column="EMAIL" property="email"/>
+		<result column="ADDRESS" property="address"/>
+		<result column="STATUS" property="memberStatus"/>
+		<result column="AUTHORITY" property="memberAuthority"/>
+	</resultMap>
+	<resultMap type="MemberManage" id="MemberManageResultSet">
+		<id column="MEMBER_ID" property="memberId"/>
+		<result column="MEMBER_PWD" property="memberPwd"/>
+		<result column="MEMBER_NAME" property="memberName"/>
+		<result column="NICKNAME" property="nickName"/>
+		<result column="PHONE" property="phone"/>
+		<result column="EMAIL" property="email"/>
+		<result column="ADDRESS" property="address"/>
+		<result column="STATUS" property="memberStatus"/>
+		<result column="AUTHORITY" property="memberAuthority"/>
+		<result column="ENROLLDATE" property="enrollDate"/>
+		<result column="MEMBER_LOG" property="memberLog"/>
+	</resultMap>
+	
+	<resultMap type="ProductList" id="ProductListResultSet">
+		<id column="BOARD_NO" property="boardNo"/>
+		<result column="BOARD_TYPE" property="boardType"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="CREATE_DATE" property="createDate"/>
+		<result column="MODIFY_DATE" property="modifyDate"/>
+		<result column="B_STATUS" property="boardStatus"/>
+		<result column="BOARD_WRITER" property="boardWriter"/>
+		<result column="BOARD_COUNT" property="boardCount"/>
+		<result column="PRODUCT_NO" property="productNo"/>
+		<result column="PRODUCT_PRICE" property="productPrice"/>
+		<result column="PRODUCT_DISCOUNT" property="discount"/>
+		<result column="PRODUCT_OPTION" property="option"/>
+		<result column="MODEL_NAME" property="modelName"/>
+		<result column="BRAND" property="brand"/>
+		<result column="PRODUCT_STATUS" property="productStatus"/>
+		<result column="PRO_SUBCATE_CODE" property="subCateCode"/>
+		<result column="PRO_SUBCATE_NAME" property="subCateName"/>
+		<result column="PRO_TOPCATE_CODE" property="topCateCode"/>
+		<result column="PRO_TOPCATE_NAME" property="topCateName"/>
+	</resultMap>
+	<resultMap type="Notice" id="noticeResultSet">
+		<id property="boardNo" column="BOARD_NO"/>
+		<result property="boardType" column="BOARD_TYPE"/>
+		<result property="boardTitle" column="BOARD_TITLE"/>
+		<result property="boardContent" column="BOARD_CONTENT"/>
+		<result property="createDate" column="CREATE_DATE"/>
+		<result property="modifyDate" column="MODIFY_DATE"/>
+		<result property="noticeStatus" column="NOTICE_STATUS"/>
+		<result property="status" column="B_STATUS"/>
+		<result property="boardWriter" column="BOARD_WRITER"/>
+		<result property="count" column="BOARD_COUNT"/>
+		<result property="reportStatus" column="REPORT_STATUS"/>
+		<result property="noticeCategory" column="NOTICE_CATEGORY"/>
+	</resultMap>
+	<resultMap type="Qna" id="qnaResultSet">
+		<id property="boardNo" column="BOARD_NO"/>
+		<result property="boardType" column="BOARD_TYPE"/>
+		<result property="boardTitle" column="BOARD_TITLE"/>
+		<result property="boardContent" column="BOARD_CONTENT"/>
+		<result property="createDate" column="CREATE_DATE"/>
+		<result property="modifyDate" column="MODIFY_DATE"/>
+		<result property="noticeStatus" column="NOTICE_STATUS"/>
+		<result property="status" column="B_STATUS"/>
+		<result property="boardWriter" column="BOARD_WRITER"/>
+		<result property="count" column="BOARD_COUNT"/>
+		<result property="reportStatus" column="REPORT_STATUS"/>
+		<result property="qnaCategory" column="QNA_CATEGORY"/>
+	</resultMap>
+	<resultMap type="Board" id="boardResultSet">
+		<id column="BOARD_NO" property="boardNo"/>
+		<result column="BOARD_TYPE" property="boardType"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="BOARD_CONTENT" property="boardContent"/>
+		<result column="CREATE_DATE" property="createDate"/>
+		<result column="MODIFY_DATE" property="modifyDate"/>
+		<result column="NOTICE_STATUS" property="noticeStatus"/>
+		<result column="B_STATUS" property="status"/>
+		<result column="BOARD_WRITER" property="writer"/>
+		<result column="BOARD_COUNT" property="count"/>
+		<result column="QNA_CATEGORY" property="qnaCategory"/>
+	</resultMap>
+	<resultMap type="ReportBoard" id="reportBoardResultSet">
+		<id column="REPORT_NO" property="reportNo"/>
+		<result column="CONTENT_NO" property="contentNo"/>
+		<result column="REPORT_TYPE" property="reportType"/>
+		<result column="REPORT_CATE" property="reportCate"/>
+		<result column="BOARD_TYPE" property="boardType"/>
+		<result column="MEMBER_ID" property="memberId"/>
+		<result column="CREATE_DATE" property="createDate"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="BOARD_CONTENT" property="boardContent"/>
+		<result column="REPORT_STATUS" property="reportStatus"/>
+	</resultMap>
+
+	<resultMap type="ReportReply" id="reportReplyResultSet">
+		<id column="REPORT_NO" property="reportNo"/>
+		<result column="CONTENT_NO" property="contentNo"/>
+		<result column="BOARD_NO" property="boardNo"/>
+		<result column="REPORT_TYPE" property="reportType"/>
+		<result column="REPORT_CATE" property="reportCate"/>
+		<result column="BOARD_TYPE" property="boardType"/>
+		<result column="MEMBER_ID" property="memberId"/>
+		<result column="CREATE_DATE" property="createDate"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="REPLY_CONTENT" property="replyContent"/>
+		<result column="REPORT_STATUS" property="reportStatus"/>
+	</resultMap>
+
+	<resultMap type="InquiryAdmin" id="InquiryAdminResultSet">
+		<id column="INQUIRY_NO" property="inquiryNo"/>
+		
+		<result column="BOARD_NO" property="boardNo"/>
+		<result column="PRO_TOPCATE_NAME" property="proTopCateName"/>
+		<result column="PRO_SUBCATE_NAME" property="proSubCateName"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="PRODUCT_NO" property="productNo"/>
+		<result column="INQUIRY_CONTENT" property="inquiryContent"/>
+		<result column="MEMBER_ID" property="memberId"/>
+		<result column="INQUIRY_DATE" property="inquiryDate"/>
+		<result column="INQUIRY_STATUS" property="inquiryStatus"/>
+		<result column="INQUIRY_ANSWER" property="inquiryAnswer"/>
+		<result column="ADMIN_STATUS" property="adminStatus"/>
+	</resultMap>
+	
+	<resultMap type="OrderProducts" id="OrderProductsResultSet">
+		<id column="ORDER_NO" property="orderNo"/>
+		<result column="PRODUCTS" property="products"/>
+		<result column="ORDER_TOTAL_PRICE" property="orderTotalPrice"/>
+		<result column="RECIPIENT" property="recipient"/>
+		<result column="RECI_ADDRESS" property="reciAddress"/>
+		<result column="MEMBER_ID" property="memberId"/>
+		<result column="RECI_PHONE" property="reciPhone"/>
+		<result column="ORDER_DATE" property="orderDate"/>
+		<result column="ORDER_TOTAL_STATUS" property="orderTotalStatus"/>
+	</resultMap>
+	
+	<resultMap type="OrderProductDetail" id="OrderProductDetailResultSet">
+		<id column="ORDER_NO" property="orderNo"/>
+		<result column="ORDER_DATE" property="orderDate"/>
+		<result column="ORDER_TOTAL_PRICE" property="orderTotalPrice"/>
+		<result column="ORDER_DETAIL_NO" property="orderDetailNo"/>
+		<result column="BOARD_TITLE" property="productName"/>
+		<result column="PRODUCT_QUANTITY" property="productQuantity"/>
+		<result column="PRODUCT_PRICE" property="productPrice"/>
+		<result column="PRODUCT_OPTION" property="productOption"/>
+		<result column="STATUS" property="status"/>
+		<result column="IMG_SERVER_NAME" property="imgServerName"/>
+		<result column="MERCHANTU_ID" property="merId"/>
+		<result column="IMP_UID" property="impUid"/>
+	</resultMap>
+	<resultMap type="OrderPerson" id="OrderPersonResultSet">
+		<id column="MEMBER_ID" property="memberId"/>
+		<result column="RECIPIENT" property="recipient"/>
+		<result column="RECI_ADDRESS" property="reciAddress"/>
+		<result column="RECI_PHONE" property="reciPhone"/>
+		<result column="DELIVERY_MSG" property="deliveryMsg"/>
+		<result column="MEMBER_NAME" property="memberName"/>
+		<result column="PHONE" property="phone"/>
+		<result column="EMAIL" property="email"/>
+	</resultMap>
+	
+	
+	<insert id="insertProduct">
+		insert all
+			into board values(seq_bid.nextval,1,#{productName},#{productContent},sysdate,sysdate,default,default,#{boardWriter},default,default)
+			into product values(seq_pid.nextval,#{productPrice},#{productDiscount},#{productOption},#{modelName},#{brand},default,#{proSubCateCode},seq_bid.currval)
+		select *from dual
+	</insert>
+	<insert id="insertProductAttm" >
+		insert all
+		<foreach collection="list" item="a">
+			into IMG_REPOSITORY
+			values(SingleRior_aid, #{a.imgOriginalName}, #{a.imgRename}, sysdate, sysdate, default, <if test='a.imgKey==null'>seq_bId.currval,</if><if test="a.imgKey!=null">#{a.imgKey},</if> #{a.imgPath}, #{a.boardType}, #{a.level})
+		</foreach>
+		select * from dual
+	</insert>
+	
+	<select id="selectMemberList" resultMap="MemberManageResultSet">
+		select member_id, nvl(login_time, '로그기록 없음') member_log,member_pwd,member_name,nickname,phone,email,address,status,authority,enrolldate
+		from member
+    		left join log using(member_id)
+		where login_check='Y' or login_check is null
+	</select>
+	<select id="selectMember" resultMap="MemberResultSet">
+		select *
+		from member	
+		where member_id=#{memberId}
+	</select>
+	<update id="editMember">
+		update member
+		set member_name=#{memberName}, nickname=#{nickName}, phone=#{phone}, email=#{email}, address=#{address}, modifydate=sysdate
+			<if test="memberPwd!=''">
+				, member_pwd=#{memberPwd}
+			</if>
+		where member_id=#{memberId}
+	</update>
+
+  	<!-- 썸네일 -->
+    <select id="selectAttmList" resultMap="attachmentResultSet">
+     select *
+		from img_repository 
+		where img_B_type= #{i}
+		      and img_level=0
+		      and img_status='Y'
+	    order by img_key desc
+   </select>
+   
+   <select id="selectProductList" resultMap="ProductListResultSet">
+   
+	    select b.board_no,b.board_type,b.board_title,b.create_date,b.modify_date,
+	    b.b_status,b.board_writer,b.board_count,p.product_no,
+	    p.product_price,p.product_discount,p.product_option,p.model_name,
+	    p.brand,p.product_status,ps.pro_subcate_code,ps.pro_subcate_name,pt.pro_topcate_code,pt.pro_topcate_name
+		from board b
+		    join product p on (b.board_no=p.board_no)
+		    join product_sub_cate ps on(p.pro_subcate_code=ps.pro_subcate_code)
+		    join product_top_cate pt on(ps.pro_topcate_code=pt.pro_topcate_code)
+		where board_type=#{i}
+	    order by p.product_no desc
+   
+   </select>
+   
+	<select id="selectProductDetail" resultMap="ProductListResultSet">
+	
+		select b.board_no,b.board_type,b.board_title,b.create_date,b.modify_date,b.b_status,b.board_writer,b.board_count,p.product_no,p.product_price,p.product_discount,p.product_option,p.model_name,p.brand,p.product_status,ps.pro_subcate_code,ps.pro_subcate_name,pt.pro_topcate_code,pt.pro_topcate_name
+		from board b
+		    join product p on (b.board_no=p.board_no)
+		    join product_sub_cate ps on(p.pro_subcate_code=ps.pro_subcate_code)
+		    join product_top_cate pt on(ps.pro_topcate_code=pt.pro_topcate_code)
+		where product_no=#{productNo}
+	</select>
+	<select id="selectAttmListDetail" resultMap="attachmentResultSet">
+	    select *
+		from img_repository 
+		where img_B_type= '1'
+		      and img_status='Y'
+		      and img_key=to_char(#{bId})
+	</select>
+	<delete id="deleteAttm">
+		delete from img_repository
+		where img_server_name in
+		<foreach collection="list" open="(" close=")" separator="," item="item">
+			#{item}
+		</foreach>
+	</delete>
+	<update id="updateAttmLevel">
+		update img_repository
+		set img_level=0
+		where img_no=(select min(img_no)
+						from img_repository
+						where img_key=#{bId})
+	
+	</update>
+	<update id="updateProduct">
+		update product
+		set product_price=#{productPrice},product_discount=#{productDiscount},product_option=#{productOption},model_name=#{modelName},brand=#{brand},pro_subcate_code=#{proSubCateCode}
+		where board_no=#{boardNo}
+	
+	</update>
+	<update id="updateBoard">
+		update board
+		set board_title=#{productName},modify_date=sysdate,board_writer=#{boardWriter}
+		where board_no=#{boardNo}
+	</update>
+	
+	<update id="deleteProduct">
+	
+		update product
+		set product_status='N'
+		where product_no=#{productNo}
+	
+	</update>
+	<update id="successProduct">
+	
+		update product
+		set product_status='Y'
+		where product_no=#{productNo}
+	
+	</update>
+	
+	<insert id="enrollNotice">
+		insert all
+			into Board values(seq_bid.nextval,#{boardType},#{boardTitle},#{boardContent},sysdate,sysdate,default,default,#{boardWriter},default,default)
+			into Notice values(seq_bid.currval,#{noticeCategory})
+		select *from dual
+	</insert>
+	<select id="listCount" resultType="_int">
+		select count(*)
+		from board
+		where board_type=#{i}
+	</select>
+	
+	<select id="selectNoticeList" resultMap="noticeResultSet">
+	
+		select * 
+			from board
+		    join notice using(board_no)
+		where b_status='Y'
+		order by board_no desc
+	
+	</select>
+	<update id="addCount">
+		update board
+		set board_count=board_count+1
+		where board_no=#{bNo}
+	
+	</update>
+	<select id="selectNotice" resultMap="noticeResultSet">
+		select * 
+		from board
+		    join notice using(board_no)
+		where board_no=#{bNo} 
+	
+	</select>
+	<update id="editBoardNotice">
+		update Board
+		set board_title=#{boardTitle}, board_content=#{boardContent}, modify_date=sysdate
+		where board_no=#{boardNo}
+	</update>
+	<update id="editNotice">
+		update notice
+		set notice_category=#{noticeCategory}
+		where board_no=#{boardNo}
+	</update>
+	<update id="deleteNotice">
+		update board
+		set b_status='N'
+		where board_no=#{bNo}
+	</update>
+	<insert id="enrollQNA">
+		insert all
+			into Board values(seq_bid.nextval,#{boardType},#{boardTitle},#{boardContent},sysdate,sysdate,default,default,#{boardWriter},default,default)
+			into QNA values(seq_bid.currval,#{qnaCategory})
+		select *from dual
+	</insert>
+	
+	<select id="selectQNAList" resultMap="qnaResultSet">
+	
+		select * 
+			from board
+		    join qna using(board_no)
+		where b_status='Y'
+		order by board_no desc
+	
+	</select>
+	<select id="selectQNA" resultMap="qnaResultSet">
+		select * 
+			from board
+			join qna using(board_no)
+		where b_status='Y' and board_no=#{bNo}
+	
+	</select>
+	<update id="boardQNAEdit">
+	
+		update Board
+		set board_title=#{boardTitle}, board_content=#{boardContent}, modify_date=sysdate
+		where board_no=#{boardNo}
+		
+	</update>
+	<update id="QNAEdit">
+	
+		update QNA
+		set qna_category=#{qnaCategory}
+		where board_no=#{boardNo}
+	
+	</update>
+	<update id="deleteQNA">
+	
+		update board
+		set b_status='N'
+		where board_no=#{bNo}
+		
+	</update>
+	<insert id="insertBannerBoard">
+	
+		insert into board
+		values(seq_bid.nextval,#{boardType},#{boardTitle},#{boardContent},sysdate,sysdate,default,default,#{writer},default,default)
+		
+	</insert>		
+	<select id="selectBannerBoard" resultMap="boardResultSet">
+		select *
+		from board
+		where board_type=#{i} and b_status='Y'
+		order by board_no desc
+	</select>
+	<select id="selectBannerAttm" resultMap="attachmentResultSet">
+	 select *
+		from img_repository 
+		where img_B_type= #{i}
+		      and img_level=0
+		      and img_status='Y'
+	    order by img_key desc
+	
+	</select>
+	<select id="selectBannerDetail" resultMap="boardResultSet">
+	
+		select *
+		from board
+		where board_no=#{boardNo}
+	</select>
+	<select id="selectBannerAttmList" resultMap="attachmentResultSet">
+		select * 
+		from img_repository
+		where img_key=#{bId} and img_status='Y' 
+	</select>
+	
+	<update id="deleteBannerBoard">
+	update board
+	set b_status='N'
+	where board_no=#{boardNo}
+	</update>
+	<update id="deleteBannerAttm">
+		update img_repository
+		set img_status='N'
+		where img_key=#{imgKey}
+	</update>	
+	
+	<select id="selectReportList" resultMap="reportBoardResultSet">
+		select *
+		from report
+			join board on(report.content_no=board.board_no)
+		where report_cate='B'
+	
+	</select>
+
+	<update id="statusBoard">
+		update board
+		set b_status='N'
+		where board_no=(select board_no
+						from board
+						join report on(board.board_no=report.content_no)
+						where report_no=#{rNo} and report_cate='B')
+	</update>
+	
+	<delete id="reportBoard">
+		
+		delete from report
+		where report_no=${rNo}
+	
+	</delete>	
+	<update id="cancelStatusBoard">
+		update board
+		set report_status='N'
+		where board_no=(select board_no
+						from board
+						join report on(board.board_no=report.content_no)
+						where report_no=#{rNo} and report_cate='B')
+	</update>
+	
+	<select id="selectReportReplyList" resultMap="reportReplyResultSet">
+		select report.report_no,report.report_type,report.content_no,report.report_cate,board.board_no,board.board_type,report.create_date,report.member_id,board.board_title,reply.reply_content,reply.report_status
+		from report
+    		join reply on (report.content_no=reply.reply_no)
+    		join board on (reply.board_no=board.board_no)
+		where report_cate='R'
+	</select>
+	<update id="statusReply">
+		update reply
+		set reply_status='N'
+		where reply_no=(select reply_no
+						from reply
+						join report on(reply.reply_no=report.content_no)
+						where report_no=#{rNo} and report_cate='R')	
+	</update>
+	<delete id="reportReply">
+		delete from report
+		where report_no=#{rNo}
+	</delete>
+	<update id="cancelStatusReply">
+		update reply
+		set report_status='N'
+		where reply_no=(select reply_no
+						from reply
+						join report on(reply.reply_no=report.content_no)
+						where report_no=#{rNo} and report_cate='R')
+	</update>
+	<select id="manageInquiry" resultMap="InquiryAdminResultSet">
+		
+		select inquiry_no,board.board_no,pro_topcate_name,pro_subcate_name,board_title,product_inquiry.product_no,inquiry_content,member_id,inquiry_date,inquiry_status,admin_status,inquiry_answer
+		from product_inquiry
+		    join product on(product_inquiry.product_no=product.product_no)
+		    join product_sub_cate on(product.pro_subcate_code=product_sub_cate.pro_subcate_code)
+		    join product_top_cate on(product_top_cate.pro_topcate_code=product_sub_cate.pro_topcate_code)
+		    join board on(product.board_no=board.board_no)
+		order by inquiry_date desc
+	
+	</select>
+	
+	<update id="inquiryAnswer">
+		update product_inquiry
+		set admin_status='Y', inquiry_answer=#{inquiryContent}
+		where inquiry_no=#{inquiryNo}
+		
+	
+	</update>
+	<select id="inquiryQue" resultMap="InquiryAdminResultSet">
+	
+		select inquiry_no,board.board_no,pro_topcate_name,pro_subcate_name,board_title,product_inquiry.product_no,inquiry_content,member_id,inquiry_date,inquiry_status,admin_status,inquiry_answer
+		from product_inquiry
+		    join product on(product_inquiry.product_no=product.product_no)
+		    join product_sub_cate on(product.pro_subcate_code=product_sub_cate.pro_subcate_code)
+		    join product_top_cate on(product_top_cate.pro_topcate_code=product_sub_cate.pro_topcate_code)
+		    join board on(product.board_no=board.board_no)
+		where admin_status='N'
+		order by inquiry_date desc
+
+	</select>
+	
+	
+	<select id="inquiryAns" resultMap="InquiryAdminResultSet">
+		select inquiry_no,board.board_no,pro_topcate_name,pro_subcate_name,board_title,product_inquiry.product_no,inquiry_content,member_id,inquiry_date,inquiry_status,admin_status,inquiry_answer
+		from product_inquiry
+		    join product on(product_inquiry.product_no=product.product_no)
+		    join product_sub_cate on(product.pro_subcate_code=product_sub_cate.pro_subcate_code)
+		    join product_top_cate on(product_top_cate.pro_topcate_code=product_sub_cate.pro_topcate_code)
+		    join board on(product.board_no=board.board_no)
+		where admin_status='Y'
+	</select>
+	<select id="selectEnrollUser" resultType="map">
+		
+		select a,b,c
+		from(select to_char(enrolldate,'yyyy/mm/dd') as a, count(*) as b,sum(count(*)) over(order by to_char(enrolldate,'yyyy/mm/dd')) as c 
+    			from member
+    			group by TO_CHAR(enrolldate, 'yyyy/mm/dd')
+    			order by a desc)
+		where rownum<![CDATA[<]]>=5
+	
+	
+	</select>	
+	<select id="viewCountSum" resultType="map">
+	
+	select board_type as A,sum(board_count) as B
+	from board
+	where board_type=1 or board_type=2 or board_type=3
+	group by board_type
+	
+	</select>
+	
+	<select id="selectLoginCount" resultType="map">
+		select a,b
+		from(select date_time as a, count(date_time) as b 
+    			from log
+    			group by date_time
+    			order by a desc)
+		where rownum<![CDATA[<]]>=10
+	
+	</select>
+	
+	
+	<select id="selectOrderProducts" resultMap="OrderProductsResultSet">
+	
+		SELECT OP.ORDER_NO,LISTAGG(BOARD_TITLE,',') WITHIN GROUP(ORDER BY BOARD_TITLE) AS "PRODUCTS",ORDER_TOTAL_PRICE,RECIPIENT,RECI_ADDRESS,MEMBER_ID,RECI_PHONE,ORDER_DATE,ORDER_TOTAL_STATUS
+		FROM ORDER_PRODUCT OP
+		   	JOIN ORDER_DETAIL OD ON(OP.ORDER_NO=OD.ORDER_NO)
+		   	JOIN PRODUCT P ON(P.PRODUCT_NO=OD.PRODUCT_NO)
+		   	JOIN BOARD B ON(B.BOARD_NO=P.BOARD_NO)
+		GROUP BY OP.ORDER_NO,ORDER_TOTAL_PRICE,RECIPIENT,RECI_ADDRESS,MEMBER_ID,ORDER_DATE,ORDER_TOTAL_STATUS,RECI_PHONE
+		ORDER BY ORDER_DATE DESC
+
+	</select>
+	<select id="orderProductDetail" resultMap="OrderProductDetailResultSet">
+	
+		select op.order_no, op.order_date,op.order_total_price,od.order_detail_no,b.board_title,od.product_quantity,od.product_price,od.product_option,od.status,img_Server_Name,merchantu_id,imp_uid
+		from order_product op
+		 	join pay p on(p.order_no=op.order_no)
+		    join order_detail od on(op.order_no=od.order_no)
+		    join product p on(od.product_no=p.product_no)
+		    join board b on(p.board_no=b.board_no)
+		    join img_repository i on(to_char(b.board_no)=i.img_key)
+		where op.order_no=#{orNo} and img_level=0
+		
+	</select>
+	<select id="dailyOrderList" resultType="map">
+	
+		select to_char(order_date) as A,count(*) as B
+		from order_product
+		where order_total_status='결제완료'
+		group by to_char(order_date)
+		order by to_char(order_date) desc
+	
+	</select>
+	<select id="dailySales" resultType="map">
+		
+		select to_char(order_date) as A,sum(order_total_price) as B
+		from order_product
+		where order_total_status='결제완료'
+		group by to_char(order_date)
+		order by to_char(order_date) desc
+		
+	</select>
+	<select id="dailyTopCate" resultType="map">
+		select pt.pro_topcate_name as A,count(pt.pro_topcate_name) as B
+		from order_detail o
+		    join product p on(p.product_no=o.product_no)
+		    join product_sub_cate ps on (ps.pro_subcate_code=p.pro_subcate_code)
+		    left join product_top_cate pt on (ps.pro_topcate_code=pt.pro_topcate_code)
+		where status!='주문취소'
+		group by pt.pro_topcate_name
+		
+	</select>
+	<update id="changeDeli">
+		update order_detail
+		set status=#{changeDeli}
+		where order_detail_no=#{orderDetailNo}
+	</update>
+	<select id="selectOrderNo" resultType="_int">
+		select order_no
+		from order_detail
+		where order_detail_no=#{odNo}
+	</select>
+	<select id="selectOrderPerson" resultMap="OrderPersonResultSet">
+		select m.MEMBER_ID,op.RECIPIENT,op.RECI_ADDRESS,op.RECI_PHONE,op.DELIVERY_MSG,m.MEMBER_NAME,m.PHONE,m.EMAIL
+		from order_product op
+			join member m on(op.member_id=m.member_id)
+		where order_no=#{orNo}
+	</select>
+	
+	<update id="statusDetailNo">
+		update order_detail
+		set status='주문취소'
+		where order_detail_no=#{odNo}
+	</update>
+	<update id="statusOrderNo">
+		update order_product
+		set order_total_status='부분취소'
+		where order_No=#{orNo}
+	</update>
+	<select id="selectProductDetailNo" resultType="Map">
+	
+		select order_detail_no as A
+		from order_detail
+		where order_no=#{orNo}
+		
+	</select>
+	
+</mapper>

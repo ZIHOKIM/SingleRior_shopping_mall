@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd" >
+<configuration>
+
+	<settings>
+		 <setting name="jdbcTypeForNull" value="NULL"/>
+	</settings>
+
+	<typeAliases> 
+		<typeAlias type="com.E1I4.project.member.model.vo.Member" alias="Member"/>
+		<typeAlias type="com.E1I4.project.admin.model.vo.MemberManage" alias="MemberManage"/>
+		<typeAlias type="com.E1I4.project.marketBoard.model.vo.MarketBoard" alias="MarketBoard"/>
+		<typeAlias type="com.E1I4.project.notiBoard.model.vo.NotiBoard" alias="NotiBoard"/>
+		<typeAlias type="com.E1I4.project.storeBoard.model.vo.StoreBoard" alias="StoreBoard"/>
+		<typeAlias type="com.E1I4.project.commuBoard.model.vo.CommuBoard" alias="CommuBoard"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.Attachment" alias="Attachment"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.Product" alias="Product"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.WishList" alias="WishList"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.Reply" alias="Reply"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.ReReply" alias="ReReply"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.ProductList" alias="ProductList"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.Board" alias="Board"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.ProductInquiry" alias="ProductInquiry"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.Notice" alias="Notice"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.Qna" alias="Qna"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.Report" alias="Report"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.Cart" alias="Cart"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.Review" alias="Review"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.ReportBoard" alias="ReportBoard"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.ReportReply" alias="ReportReply"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.Review" alias="Review"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.ReportBoard" alias="ReportBoard"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.ReportReply" alias="ReportReply"/>
+		<typeAlias type="com.E1I4.project.storeBoard.model.vo.OrderItem" alias="OrderItem"/>
+		<typeAlias type="com.E1I4.project.member.model.vo.Order" alias="Order"/>
+		<typeAlias type="com.E1I4.project.member.model.vo.ProductCancel" alias="ProductCancel"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.InquiryAdmin" alias="InquiryAdmin"/>
+		<typeAlias type="com.E1I4.project.mainPage.model.vo.MainPage" alias="MainPage"/>
+		<typeAlias type="com.E1I4.project.admin.model.vo.OrderProducts" alias="OrderProducts"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.OrderProductDetail" alias="OrderProductDetail"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.Message" alias="Message"/>
+		<typeAlias type="com.E1I4.project.storeBoard.model.vo.ProductReview" alias="ProductReview"/>
+		<typeAlias type="com.E1I4.project.common.model.vo.Pay" alias="Pay"/>
+		<typeAlias type="com.E1I4.project.storeBoard.model.vo.TotalReview" alias="TotalReview"/>
+		<typeAlias type="com.E1I4.project.member.model.vo.LoginLog" alias="LoginLog"/>
+		<typeAlias type="com.E1I4.project.admin.model.vo.ChangeDeli" alias="ChangeDeli"/>
+		<typeAlias type="com.E1I4.project.admin.model.vo.OrderPerson" alias="OrderPerson"/>
+	</typeAliases>
+	
+	<mappers>
+		<mapper resource="mappers/common-mapper.xml"/>
+		<mapper resource="mappers/member-mapper.xml"/>
+	   	<mapper resource="mappers/market-mapper.xml"/>
+	   	<mapper resource="mappers/store-mapper.xml"/>
+	   	<mapper resource="mappers/noti-mapper.xml"/>
+	   	<mapper resource="mappers/commu-mapper.xml"/>
+	   	<mapper resource="mappers/admin-mapper.xml"/>
+	   	<mapper resource="mappers/main-mapper.xml"/>
+	</mappers>
+</configuration>

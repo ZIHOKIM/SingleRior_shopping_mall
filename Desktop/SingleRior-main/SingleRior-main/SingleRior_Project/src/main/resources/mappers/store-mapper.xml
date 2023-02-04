@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mtbatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="storeMapper">
+
+    <resultMap type="StoreBoard" id="StoreBoardResultSet">
+		<id column="BOARD_NO" property="boardNo"/>
+		<result column="BOARD_TYPE" property="boardType"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="CREATE_DATE" property="createDate"/>
+		<result column="B_STATUS" property="boardStatus"/>
+		<result column="BOARD_WRITER" property="boardWriter"/>
+		<result column="BOARD_COUNT" property="boardCount"/>
+		<result column="PRODUCT_NO" property="productNo"/>
+		<result column="PRODUCT_PRICE" property="price"/>
+		<result column="PRODUCT_DISCOUNT" property="discount"/>
+		<result column="PRODUCT_OPTION" property="option"/>
+		<result column="MODEL_NAME" property="modelName"/>
+		<result column="BRAND" property="brand"/>
+		<result column="delivery_payment" property="dPayment"/>
+		<result column="PRODUCT_STATUS" property="productStatus"/>
+		<result column="PRO_SUBCATE_CODE" property="subCateCode"/>
+		<result column="PRO_SUBCATE_NAME" property="subCateName"/>
+		<result column="PRO_TOPCATE_CODE" property="topCateCode"/>
+		<result column="PRO_TOPCATE_NAME" property="topCateName"/>
+		<result column="IMG_NO" property="imgNO"/>
+		<result column="IMG_NAME" property="imgName"/>
+		<result column="IMG_SERVER_NAME" property="imgServerName"/>
+		<result column="IMG_CREATE_DATE" property="imgCreateDate"/>
+		<result column="IMG_STATUS" property="imgStatus"/>
+		<result column="IMG_KEY" property="imgKey"/>
+		<result column="IMG_PATH" property="imgPath"/>
+		<result column="IMG_B_TYPE" property="imgBoardtype"/>
+		<result column="IMG_LEVEL" property="lmgLevel"/>
+	</resultMap>
+	
+	<resultMap type="Member" id="MemberResultSet">
+		<id column="MEMBER_ID" property="memberId"/>
+		<result column="MEMBER_PWD" property="memberPwd"/>
+		<result column="MEMBER_NAME" property="memberName"/>
+		<result column="NICKNAME" property="nickName"/>
+		<result column="PHONE" property="phone"/>
+		<result column="EMAIL" property="email"/>
+		<result column="ADDRESS" property="address"/>
+		<result column="STATUS" property="memberStatus"/>
+		<result column="AUTHORITY" property="memberAuthority"/>
+	</resultMap>
+	
+	<resultMap type="Attachment" id="attmResultSet">
+  		<id column="IMG_NO" property="imgNo"/>
+    	<result column="IMG_NAME" property="imgOriginalName"/>
+    	<result column="IMG_SERVER_NAME" property="imgRename"/>
+    	<result column="IMG_CREATE_DATE" property="imgCreateDate"/>
+    	<result column="IMG_MODIFY_DATE" property="imgModifyDate"/>
+    	<result column="IMG_STATUS" property="imgStatus"/>
+    	<result column="IMG_KEY" property="imgKey"/>
+    	<result column="IMG_PATH" property="imgPath"/>
+    	<result column="IMG_B_TYPE" property="boardType"/>
+    	<result column="IMG_LEVEL" property="level"/>
+	 </resultMap>
+   
+	<select id="getStoreListCount" resultType="_int">
+		select count(*)
+		from board b
+        join product p using(board_no)
+         join product_sub_Cate psc using(pro_subcate_code)
+		where b.board_type='1' and product_status = 'Y'
+		<if test="subCate != null">
+		 and pro_subcate_code = #{subCate}
+		</if>
+		<if test="topCate != null">
+		 and pro_topcate_code = #{topCate}
+		</if>
+	</select>
+	
+	<select id="selectStoreBoardList" resultMap="StoreBoardResultSet">
+		select *
+		from board
+		     join product using (board_no)
+		     join product_sub_Cate using(pro_subcate_code)
+		     join product_top_Cate using(pro_topcate_code) 
+		where product_status = 'Y' and board_type='1' 
+		<if test="subCate != null">
+		 and pro_subcate_code = #{subCate}
+		</if>
+		<if test="topCate != null">
+		 and pro_topcate_code = #{topCate}
+		</if>
+		<if test="cateNo == 1">
+			order by board_count desc
+		</if>
+		<if test="cateNo == 2">
+			 order by modify_date desc
+		</if>
+		<if test="cateNo == 3">
+			 order by product_price * (1-(product_discount/100)) 
+		</if>
+		<if test="cateNo == 4">
+			 order by product_price * (1-(product_discount/100)) desc
+		</if>
+   </select>
+   
+    <select id="selectAttmList" resultMap="attmResultSet">
+     select *
+		from img_repository 
+		where img_B_type= '1' and img_level=0 and img_status='Y' and img_key = #{strBoardNo}
+	    order by img_key desc
+   </select>
+
+
+   <select id="selectProduct" resultMap="StoreBoardResultSet">
+	 SELECT *
+	 FROM PRODUCT p
+	     JOIN BOARD USING(BOARD_NO)
+	     JOIN IMG_REPOSITORY on(IMG_KEY = (SELECT TO_CHAR(( SELECT BOARD_NO FROM PRODUCT WHERE PRODUCT_NO = #{productNo})) FROM DUAL))
+	     JOIN PRODUCT_SUB_CATE using(pro_subcate_code)
+         JOIN PRODUCT_TOP_CATE using(pro_topcate_code)
+	 where p.product_no = #{productNo} and p.product_status = 'Y'
+   </select>
+   
+   <resultMap type="WishList" id="wishListResultSet">
+	   <id column="BOARD_NO" property="boardNo"/>
+	   <result column="MEMBER_ID" property="memberId"/>
+	   <result column="BOARD_TYPE" property="boardType"/>
+	   <result column="BOARD_TITLE" property="boardTitle"/>
+	   <result column="IMG_SERVER_NAME" property="imgRename"/>
+	   <result column="PRODUCT_NO" property="productNo"/>
+	   <result column="PRODUCT_PRICE" property="productPrice"/>
+	</resultMap>
+ 
+   <insert id="wishListOn">
+        INSERT INTO WISHLIST
+		VALUES(#{memberId}, #{boardNo})
+   </insert>
+   
+   <!-- 찜하기 -->
+   <select id="wishListCount" resultType="_int">
+    select count(*)
+	from wishList
+	where member_id = #{memberId} and board_no = (select board_no
+													from product
+													where product_no = #{productNo})
+   </select>
+   
+   <delete id="wishListOff">
+   		delete wishList
+		where board_no=#{boardNo} and member_id=#{memberId}
+   </delete>
+   
+   <!-- 장바구니 -->
+   <insert id="insertCart">
+   	    insert into cart
+		values (SEQ_CNO.NEXTVAL, #{quantity}, default, #{memberId}, #{productNo}, #{productOption})
+   </insert>  
+   
+   
+   <!-- 문의하기 -->
+   <insert id="insertInquiry">
+    	insert into product_inquiry
+    	values(SEQ_PROIID.nextval, #{inquiryTitle}, #{inquiryContent}, sysdate, #{productNo}, #{memberId}, default, default, null)
+   </insert> 
+   
+   <select id="InquiryCount" resultType="_int">
+        select count(*)
+		from product_inquiry
+	    where member_id = #{memberId} and product_no = #{productNo}
+   </select> 
+
+   <select id="selectInquiryList" resultMap="ProductInquiryResultSet">
+      select *
+	  from product_inquiry
+      where product_no = #{productNo}  and inquiry_status = 'Y'
+   </select>
+   <select id="selectMoreInquiryList" resultMap="ProductInquiryResultSet">
+   	select *
+   	from product_inquiry
+   	where product_no=#{productNo}  and inquiry_status = 'Y'
+   
+   </select>
+   
+   <resultMap type="ProductInquiry" id="ProductInquiryResultSet">
+		<id column="INQUIRY_NO" property="inquiryNo"/>
+		<result column="INQUIRY_TITLE" property="inquiryTitle"/>
+		<result column="INQUIRY_CONTENT" property="inquiryContent"/>
+		<result column="INQUIRY_DATE" property="inquiryDate"/>
+		<result column="PRODUCT_NO" property="productNo"/>
+		<result column="MEMBER_ID" property="memberId"/>
+		<result column="INQUIRY_STATUS" property="inquiryStatus"/>
+		<result column="ADMIN_STATUS" property="adminStatus"/>
+		<result column="INQUIRY_ANSWER" property="inquiryAnswer"/>
+	</resultMap>
+   
+   <select id="getUserInfo" resultMap="MemberResultSet">
+    select *
+	from member
+	where member_id = #{id}
+   </select>
+   
+   <select id="getCartInfo" resultMap="OrderItemResultSet">
+    SELECT *
+	FROM CART
+     	 JOIN PRODUCT USING (PRODUCT_NO)
+         JOIN BOARD USING (BOARD_NO)
+    WHERE CART_NO=#{i}
+   </select>
+   
+  <resultMap type="OrderItem" id="OrderItemResultSet">
+		<id column="PRODUCT_NO" property="productNo"/>
+		<result column="QUANTITY" property="productQty"/>
+		<result column="PRODUCT_PRICE" property="productPrice"/>
+		<result column="PRODUCT_DISCOUNT" property="discount"/>
+		<result column="PRODUCT_OPTION" property="productOption"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="IMG_SERVER_NAME" property="imgRename"/>
+		<result column="CART_NO" property="cartNo"/>
+		<result column="BOARD_NO" property="boardNo"/>
+   </resultMap>
+   
+   <select id="getImgRename" resultType="string">
+   	select img_server_name
+   	from img_repository
+   	where img_key =  #{boardNo} and img_level = 0
+   </select>
+   
+   <update id="addCount">
+        update board
+		set board_count = board_count + 1
+		where board_no = #{boardNo}
+   </update>
+   
+   <insert id="InsertOrderProduct">
+   	    insert into order_product
+        values (SEQ_OID.nextval, #{recipient}, #{address}, #{recipient_phone}, sysdate, #{finalPrice}, #{memberId}, default, #{deliveryMsg})
+   
+   </insert>
+   
+   <select id="selectCartInfo" resultMap="cartResultSet">
+   	select *
+	from cart
+	join product using(product_no)
+	where cart_no=#{i} 
+   </select>
+   
+   	<resultMap type="Cart" id="cartResultSet">
+		<id column="CART_NO" property="cartNo"/>
+		<result column="QUANTITY" property="quantity"/>
+		<result column="PAY_STATUS" property="payStatus"/>
+		<result column="PRODUCT_NO" property="productNo"/>
+		<result column="MEMBER_ID" property="memberId"/>
+		<result column="PRODUCT_OPTION" property="productOption"/>
+		<result column="PRODUCT_OPTION_1" property="productOptions"/>
+		<result column="PRODUCT_PRICE" property="productPrice"/>
+		<result column="PRODUCT_DISCOUNT" property="productDiscount"/>
+		<result column="BRAND" property="brand"/>
+		<result column="IMG_SERVER_NAME" property="imgRename"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="BOARD_NO" property="boardNo"/>
+	</resultMap>
+
+	
+   <resultMap type="ProductReview" id="productReviewResultSet">
+		<id column="REVIEW_NO" property="reviewNo"/>
+		<result column="REVIEW_CONTENT" property="reviewContent"/>
+		<result column="PRODUCT_NO" property="productNo"/>
+		<result column="REVIEW_DATE" property="reviewDate"/>
+		<result column="REVIEW_RATING" property="reviewRating"/>
+		<result column="ORDER_DETAIL_NO" property="orderDetailNo"/>
+		<result column="PRODUCT_OPTION" property="productOption"/>
+		<result column="IMG_SERVER_NAME" property="imgServerName"/>
+		<result column="NICKNAME" property="nickName"/>
+	</resultMap>
+
+	<insert id="insertProductDetail" >
+		insert into order_detail
+		values (SEQ_ODID.nextval, #{productNo} , '결제완료', #{quantity}, #{lastPrice}, #{productOption}, SEQ_OID.currval)
+	</insert> 
+	
+	<delete id="deleteCart">
+		delete from cart
+		where cart_no = #{cartNo}
+	</delete>
+   
+  
+  <select id="getMoreInquiryCount" resultType="_int">
+   		select count(*)
+        from product_inquiry
+        where product_no = #{productNo} and inquiry_status = 'Y'
+  </select>
+  <select id="selectReviewList" resultMap="productReviewResultSet">
+	  
+	select r.review_no,r.review_content,r.review_date,img_server_name,r.review_rating,r.order_detail_no,od.product_option,m.nickname
+	from product_review r
+	    join img_repository on(img_repository.img_key=to_char(review_no))
+	    join order_detail od on(od.order_detail_no=r.order_detail_no)
+	    join order_product op on(op.order_no=od.order_no)
+	    join member m on(op.member_id=m.member_id)
+	where img_b_type=7 and r.product_no=#{productNo}
+  	order by r.order_detail_no desc
+  </select>
+   <resultMap type="TotalReview" id="totalReviewResultSet">
+		<id column="REVIEW_COUNT" property="reviewCount"/>
+		<result column="SUM_STAR" property="sumStar"/>
+	</resultMap>
+  
+  
+  <select id="selectTotalReview" resultMap="totalReviewResultSet">
+  select count(*) REVIEW_COUNT,sum(review_rating) SUM_STAR
+	from product_review r
+	    join img_repository on(img_repository.img_key=to_char(review_no))
+	    join order_detail od on(od.order_detail_no=r.order_detail_no)
+	    join order_product op on(op.order_no=od.order_no)
+	    join member m on(op.member_id=m.member_id)
+	where img_b_type=7 and r.product_no=#{productNo}
+  </select>
+
+  <select id="getMoreReviewCount" resultType="_int">
+   		select count(*)
+        from product_review
+        where product_no = #{productNo}
+  </select>
+	<select id="selectMoreReviewList" resultMap="productReviewResultSet">
+   	select r.review_no,r.product_no,r.review_content,r.review_date,img_server_name,r.review_rating,r.order_detail_no,od.product_option,m.nickname
+	from product_review r
+	    join img_repository on(img_repository.img_key=to_char(review_no))
+	    join order_detail od on(od.order_detail_no=r.order_detail_no)
+	    join order_product op on(op.order_no=od.order_no)
+	    join member m on(op.member_id=m.member_id)
+	where img_b_type=7 and r.product_no=#{productNo}
+  	order by r.order_detail_no desc
+   
+   </select>
+   
+   <select id="getSubCateName" resultType="string">
+    select pro_subcate_name
+    from product_sub_cate
+    where pro_subcate_code = #{subCate}
+   </select>
+   
+   <select id="getTopCateName" resultType="string">
+    select pro_topcate_name
+    from product_top_cate
+    join product_sub_cate using(pro_topcate_code)
+	where pro_subcate_code = #{subCate}
+   </select>
+   
+   <select id="getTopCateName2" resultType="string">
+   	select pro_topcate_name
+   	from product_top_cate
+   	where pro_topcate_code = #{topCate}
+   </select>
+   
+  <insert id="insertPayment">
+     insert into pay
+	 values (SEQ_PAYID.nextval, #{payAmount}, sysdate, 'Y', SEQ_OID.currval, #{merchantuid}, #{impuid})
+  </insert>
+  
+  <update id="deleteInquiry">
+  	    update PRODUCT_INQUIRY
+		set INQUIRY_STATUS = 'N'
+		where INQUIRY_NO = #{inquiryNo}
+  </update>
+  
+
+  <select id="getReviewCount" resultType="_int">
+ 		 select count(*)
+         from product_review
+         where board_no = #{bNo} 
+  
+  </select>
+  <select id="getReviewRating" resultType="double">
+  		select avg(review_rating)
+         from product_review
+         where board_no = #{bNo} 
+  </select>
+  
+  <select id="getWishCount" resultType="_int">
+         select count(*)
+         from wishlist
+         where board_no = #{bNo}
+  </select>
+          
+	
+
+  
+</mapper>

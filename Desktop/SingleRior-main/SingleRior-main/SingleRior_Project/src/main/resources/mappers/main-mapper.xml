@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mtbatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="mainMapper">
+
+	<resultMap type="Board" id="BoardResultSet">
+		<id column="BOARD_NO" property="boardNo"/>
+		<result column="BOARD_TYPE" property="boardType"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="BOARD_CONTENT" property="boardContent"/>
+		<result column="CREATE_DATE" property="createDate"/>
+		<result column="MODIFY_DATE" property="modifyDate"/>
+		<result column="NOTICE_STATUS" property="noticeStatus"/>
+		<result column="B_STATUS" property="status"/>
+		<result column="BOARD_WRITER" property="writer"/>
+		<result column="BOARD_COUNT" property="count"/>
+		<result column="REPORT_STATUS" property="reportStatus"/>
+	</resultMap>
+
+	<resultMap type="CommuBoard" id="CommuBoardResultSet">
+		<id column="BOARD_NO" property="boardNo"/>
+		<result column="BOARD_TYPE" property="boardType"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="BOARD_CONTENT" property="boardContent"/>
+		<result column="CREATE_DATE" property="createDate"/>
+		<result column="MODIFY_DATE" property="modifyDate"/>
+		<result column="NOTICE_STATUS" property="noticeStatus"/>
+		<result column="B_STATUS" property="status"/>
+		<result column="BOARD_WRITER" property="writer"/>
+		<result column="BOARD_COUNT" property="count"/>
+		<result column="SYMPT_COUNT" property="symptCount"/>
+		<result column="COMMU_TYPE" property="commuType"/>
+		<result column="REPLY_COUNT" property="replyCount"/>
+		<result column="REPORT_STATUS" property="reportStatus"/>
+	</resultMap>
+	
+	<resultMap type="MarketBoard" id="marketBoardResultSet">
+		<id column="BOARD_NO" property="boardNo"/>
+		<result column="BOARD_TYPE" property="boardType"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="BOARD_CONTENT" property="boardContent"/>
+		<result column="CREATE_DATE" property="createDate"/>
+		<result column="UPDATE_DATE" property="modifyDate"/>
+		<result column="NOTICE_STATUS" property="noticeStatus"/>
+		<result column="B_STATUS" property="status"/>
+		<result column="BOARD_WRITER" property="writer"/>
+		<result column="NICKNAME" property="nickName"/>
+		<result column="BOARD_COUNT" property="count"/>
+		<result column="PRICE" property="marketPrice"/>
+		<result column="MARKET_TYPE" property="marketType"/>
+		<result column="LIKE_COUNT" property="likeCount"/>
+		<result column="REPLY_COUNT" property="replyCount"/>
+	</resultMap>
+	
+	<resultMap type="StoreBoard" id="StoreBoardResultSet">
+		<id column="BOARD_NO" property="boardNo"/>
+		<result column="BOARD_TYPE" property="boardType"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="CREATE_DATE" property="createDate"/>
+		<result column="B_STATUS" property="boardStatus"/>
+		<result column="BOARD_WRITER" property="boardWriter"/>
+		<result column="BOARD_COUNT" property="boardCount"/>
+		<result column="PRODUCT_NO" property="productNo"/>
+		<result column="PRODUCT_PRICE" property="price"/>
+		<result column="PRODUCT_DISCOUNT" property="discount"/>
+		<result column="PRODUCT_OPTION" property="option"/>
+		<result column="MODEL_NAME" property="modelName"/>
+		<result column="BRAND" property="brand"/>
+		<result column="delivery_payment" property="dPayment"/>
+		<result column="PRODUCT_STATUS" property="productStatus"/>
+		<result column="PRO_SUBCATE_CODE" property="subCateCode"/>
+		<result column="PRO_SUBCATE_NAME" property="subCateName"/>
+		<result column="PRO_TOPCATE_CODE" property="topCateCode"/>
+		<result column="PRO_TOPCATE_NAME" property="topCateName"/>
+		<result column="IMG_NO" property="imgNO"/>
+		<result column="IMG_NAME" property="imgName"/>
+		<result column="IMG_SERVER_NAME" property="imgServerName"/>
+		<result column="IMG_CREATE_DATE" property="imgCreateDate"/>
+		<result column="IMG_STATUS" property="imgStatus"/>
+		<result column="IMG_KEY" property="imgKey"/>
+		<result column="IMG_PATH" property="imgPath"/>
+		<result column="IMG_B_TYPE" property="imgBoardtype"/>
+		<result column="IMG_LEVEL" property="lmgLevel"/>
+	</resultMap>
+	
+	<resultMap type="NotiBoard" id="NotiBoardResultSet">
+		<id column="BOARD_NO" property="boardNo"/>
+		<result column="BOARD_TYPE" property="boardType"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="BOARD_CONTENT" property="boardContent"/>
+		<result column="CREATE_DATE" property="createDate"/>
+		<result column="MODIFY_DATE" property="modifyDate"/>
+		<result column="NOTICE_STATUS" property="noticeStatus"/>
+		<result column="B_STATUS" property="status"/>
+		<result column="BOARD_WRITER" property="writer"/>
+		<result column="NOTICE_CATEGORY" property="noticeCategory"/>
+	</resultMap>
+	
+	<resultMap type="Attachment" id="attachmentResultSet">
+		<id property="imgNo" column="IMG_NO"/>
+		<result property="imgOriginalName" column="IMG_NAME"/>
+		<result property="imgRename" column="IMG_SERVER_NAME"/>
+		<result property="imgCreateDate" column="IMG_CREATE_DATE"/>
+		<result property="imgModifyDate" column="IMG_CREATE_DATE"/>
+		<result property="imgKey" column="IMG_KEY"/>
+		<result property="imgPath" column="IMG_PATH"/>
+		<result property="imgStatus" column="IMG_STATUS"/>
+		<result property="level" column="IMG_LEVEL"/>
+		<result property="boardType" column="IMG_B_TYPE"/>
+	</resultMap>
+	
+	<resultMap type="WishList" id="wishListResultSet">
+		<id property="boardNo" column="BOARD_NO"/>
+		<id property="memberId" column="MEMBER_ID"/>
+	</resultMap>
+	
+	<!-- 배너 리스트 -->
+	<select id="selectBnAttmList" resultMap="attachmentResultSet">
+		select *
+		from IMG_REPOSITORY
+		where IMG_B_TYPE = '6' and IMG_STATUS = 'Y' and IMG_LEVEL = 0
+	</select>
+	
+	<!-- 스토어 리스트 -->
+	<select id="selectPdList" resultMap="StoreBoardResultSet">
+		select *
+		from board b
+			 join member on (b.board_writer = member_id)
+     		 join product p on (b.board_no = p.board_no)
+		where p.product_status = 'Y' and b.board_type = '1'
+		order by b.board_count desc
+	</select>
+	
+	<select id="getReviewRating" resultType="_double">
+	select avg(review_rating)
+		   from product_review
+		   where board_no = #{boardNo} and product_no = #{productNo}
+	</select>
+	
+	<select id="getReviewCount" resultType="_int">
+		select count(*)
+			from product_review
+			where board_no = #{boardNo} and product_no = #{productNo}
+	</select>
+	
+	<select id="selectPdAttmList" resultMap="attachmentResultSet">
+		select *
+		from IMG_REPOSITORY
+		where  IMG_B_TYPE = '1' and IMG_STATUS = 'Y' and IMG_LEVEL = 0
+	</select>
+	
+	<!-- 씽씽마켓 리스트 -->
+	<select id="selectMarketList" resultMap="marketBoardResultSet">
+		select *
+		from board b
+			 join member on (b.board_writer = member_id)
+     		 join market m on (b.board_no = m.board_no)
+		where b.b_status = 'Y' and b.board_type = '3'
+		order by m.like_count desc
+	</select>
+	
+	<select id="selectMarketAttmList" resultMap="attachmentResultSet">
+		select *
+		from IMG_REPOSITORY
+		where  IMG_B_TYPE = '3' and IMG_STATUS = 'Y' and IMG_LEVEL = 0
+	</select>
+	
+	<!-- 싱글벙글 리스트 -->
+	<select id="selectCommuList" resultMap="CommuBoardResultSet">
+		select *
+		from board b
+			 join member on (b.board_writer = member_id)
+     		 join community c on (b.board_no = c.board_no)
+		where b.b_status = 'Y' and b.board_type = '2'
+		order by c.sympt_count desc
+	</select>
+	
+	<select id="selectCommuAttmList" resultMap="attachmentResultSet">
+		select *
+		from IMG_REPOSITORY
+		where  IMG_B_TYPE = '2' and IMG_STATUS = 'Y' and IMG_LEVEL = 0
+	</select>
+	
+	
+	<!-- 검색 (search) -->
+	<!-- 스토어 -->
+	<select id="searchPdList" resultMap="StoreBoardResultSet">
+		select *
+		from board b
+			 join member on (b.board_writer = member_id)
+     		 join product p on (b.board_no = p.board_no)
+		where b.b_status = 'Y' and b.board_type = '1' and ((BOARD_TITLE LIKE '%'||#{findKeyword}||'%') or (BOARD_CONTENT LIKE '%'||#{findKeyword}||'%') or (BRAND LIKE '%'||#{findKeyword}||'%'))
+		order by b.create_date desc
+	</select>
+	
+	<!-- 씽씽마켓 -->
+	<select id="searchMarketList" resultMap="marketBoardResultSet">
+		select *
+		from board b
+			 join member on (b.board_writer = member_id)
+     		 join market m on (b.board_no = m.board_no)
+		where b.b_status = 'Y' and b.board_type = '3' and ((BOARD_TITLE LIKE '%'||#{findKeyword}||'%') or (BOARD_CONTENT LIKE '%'||#{findKeyword}||'%'))
+		order by b.create_date desc
+	</select>
+	
+	<!-- 싱글벙글 -->
+	<select id="searchCommuList" resultMap="CommuBoardResultSet">
+		select *
+		from board b
+			 join member on (b.board_writer = member_id)
+     		 join community c on (b.board_no = c.board_no)
+		where b.b_status = 'Y' and b.board_type = '2' and ((BOARD_TITLE LIKE '%'||#{findKeyword}||'%') or (BOARD_CONTENT LIKE '%'||#{findKeyword}||'%'))
+		order by b.create_date desc
+	</select>
+	
+	<!-- 공지사항 -->
+	<select id="searchNotiList" resultMap="NotiBoardResultSet">
+		select *
+		from board b
+			 join member on (b.board_writer = member_id)
+     		 join notice n on (b.board_no = n.board_no)
+		where b.b_status = 'Y' and b.board_type = '4' and ((BOARD_TITLE LIKE '%'||#{findKeyword}||'%') or (BOARD_CONTENT LIKE '%'||#{findKeyword}||'%'))
+		<if test="noticeCategory == '전체'">
+			and n.notice_category = '전체'
+		</if>
+		<if test="noticeCategory == '싱글벙글'">
+			and n.notice_category = '싱글벙글'
+		</if>
+		<if test="noticeCategory == '씽씽마켓'">
+			and n.notice_category = '씽씽마켓'
+		</if>
+		order by b.create_date desc
+	</select>
+	
+	
+	<!-- 배너 본문 -->
+	<select id="selectBannerList" resultMap="attachmentResultSet">
+		select *
+		from IMG_REPOSITORY
+		where IMG_B_TYPE = '6' and IMG_STATUS = 'Y' and IMG_LEVEL = 1 and img_key = #{imgKey}
+	</select>
+	
+</mapper>

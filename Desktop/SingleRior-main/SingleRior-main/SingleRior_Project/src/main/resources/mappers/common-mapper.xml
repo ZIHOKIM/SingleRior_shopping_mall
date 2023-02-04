@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mtbatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="commonMapper">
+
+	<resultMap type="Message" id="messageResultSet">
+		<id column="MESSAGE_NO" property="messageNo"/>
+		<result column="MSG_CREATE_DATE" property="msgCreateDate"/>
+		<result column="MESSAGE_TITLE" property="messageTitle"/>
+		<result column="MESSAGE_CONTENT" property="messageContent"/>
+		<result column="MESSAGE_CHECK" property="messageCheck"/>
+		<result column="RECEIVE_STATUS" property="receiveStatus"/>
+		<result column="SEND_STATUS" property="sendStatus"/>
+		<result column="SEND_USER" property="sender"/>
+		<result column="RECEIVE_USER" property="receiver"/>
+	</resultMap>
+	
+	<insert id="insertMsg">
+		insert into MESSAGE
+		values(SEQ_MID.nextval, sysdate, #{messageTitle}, #{messageContent}, default, default, default, #{receiver},#{sender} )
+	</insert>
+	
+	<select id="selectMsgList" resultMap="messageResultSet" parameterType="java.util.HashMap">
+		select *
+		from message
+		<if test="msgType != 1"> 
+			where RECEIVE_STATUS = 'Y'
+			 and RECEIVE_USER = #{nickName}
+		</if>
+		<if test="msgType == 1">
+			where SEND_STATUS = 'Y'
+			and SEND_USER = #{nickName}
+		</if>
+		order by MSG_CREATE_DATE desc
+	</select>
+	
+	<select id="getMsgListCount" resultType="_int" parameterType="java.util.HashMap">
+		select count(*)
+		from message
+		<if test="msgType != 1">
+			where RECEIVE_STATUS = 'Y'
+			 and RECEIVE_USER = #{nickName}
+		</if>
+		<if test="msgType == 1">
+			where SEND_STATUS = 'Y'
+			and SEND_USER = #{nickName}
+		</if>
+	</select>
+		
+	<update id="deleteMsg" parameterType="java.util.HashMap">
+		update message
+		<if test="msgType != 1">
+			set RECEIVE_STATUS = 'N'
+			where MESSAGE_NO = #{mNo}
+		</if>
+		<if test="msgType == 1">
+			set SEND_STATUS = 'N'
+			where MESSAGE_NO = #{mNo}
+		</if>
+	</update>
+	
+	<select id="selectMsg" resultMap="messageResultSet">
+		select *
+		from message
+    		where MESSAGE_NO =#{mNo}
+	</select>
+	
+	<update id="updateCheck" parameterType="java.util.HashMap">
+		update message
+		set MESSAGE_CHECK = 'Y'
+		where RECEIVE_USER = #{nickName} and MESSAGE_NO = #{mNo}
+	</update>
+	
+	<select id="msgAlarm" resultType="_int">
+		select count(*)
+		from message
+    		where RECEIVE_USER = #{nickName} and MESSAGE_CHECK='N'
+	</select>
+	
+</mapper>

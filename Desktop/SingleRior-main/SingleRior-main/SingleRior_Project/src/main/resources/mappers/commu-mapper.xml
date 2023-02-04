@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mtbatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="commuMapper">
+
+	<resultMap type="CommuBoard" id="CommuBoardResultSet">
+		<id column="BOARD_NO" property="boardNo"/>
+		<result column="BOARD_TYPE" property="boardType"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="BOARD_CONTENT" property="boardContent"/>
+		<result column="CREATE_DATE" property="createDate"/>
+		<result column="MODIFY_DATE" property="modifyDate"/>
+		<result column="NOTICE_STATUS" property="noticeStatus"/>
+		<result column="B_STATUS" property="status"/>
+		<result column="BOARD_WRITER" property="writer"/>
+		<result column="BOARD_COUNT" property="count"/>
+		<result column="SYMPT_COUNT" property="symptCount"/>
+		<result column="COMMU_TYPE" property="commuType"/>
+		<result column="REPLY_COUNT" property="replyCount"/>
+		<result column="REPORT_STATUS" property="reportStatus"/>
+		<result column="IMG_SERVER_NAME" property="profileImg"/>
+	</resultMap>
+	
+	<resultMap type="Attachment" id="attachmentResultSet">
+		<id property="imgNo" column="IMG_NO"/>
+		<result property="imgOriginalName" column="IMG_NAME"/>
+		<result property="imgRename" column="IMG_SERVER_NAME"/>
+		<result property="imgCreateDate" column="IMG_CREATE_DATE"/>
+		<result property="imgModifyDate" column="IMG_CREATE_DATE"/>
+		<result property="imgKey" column="IMG_KEY"/>
+		<result property="imgPath" column="IMG_PATH"/>
+		<result property="imgStatus" column="IMG_STATUS"/>
+		<result property="level" column="IMG_LEVEL"/>
+		<result property="boardType" column="IMG_B_TYPE"/>
+	</resultMap>
+	
+	<resultMap type="Reply" id="replyResultSet">
+		<id column="REPLY_NO" property="replyNo"/>
+		<result column="REPLY_CONTENT" property="replyContent"/>
+		<result column="REPLY_MODIFY_DATE" property="replyModifyDate"/>
+		<result column="REPLY_CREATE_DATE" property="replyCreateDate"/>
+		<result column="MEMBER_ID" property="memberId"/>
+		<result column="RE_SECRET" property="replySecret"/>
+		<result column="REPLY_STATUS" property="replyStatus"/>
+		<result column="BOARD_NO" property="boardNo"/>
+		<result column="NICKNAME" property="nickName"/>
+		<result column="REPORT_STATUS" property="reportStatus"/>
+		<result column="IMG_SERVER_NAME" property="profileImg"/>
+		<result column="GROUP_NO" property="groupNo"/>
+	</resultMap>
+	
+	<resultMap type="WishList" id="wishListResultSet">
+		<id property="boardNo" column="BOARD_NO"/>
+		<id property="memberId" column="MEMBER_ID"/>
+	</resultMap>
+	
+	<resultMap type="Report" id="reportResultSet">
+		<id column="REPORT_NO" property="reportNo"/>
+		<result column="CONTENT_NO" property="contentNo"/>
+		<result column="REPORT_TYPE" property="reportType"/>
+		<result column="REPORT_CATE" property="reportCate"/>
+		<result column="MEMBER_ID" property="memberId"/>
+		<result column="CREATE_DATE" property="createDate"/>
+		<result column="BOARD_NO" property="boardNo"/>
+	</resultMap>
+	
+	<select id="getCommuListCount" resultType="_int">
+		select count(*)
+		from board b
+			 join member on (b.board_writer = member_id)
+			 join community c on (b.board_no = c.board_no)
+		where board_type = '2' and b_status = 'Y'
+		<if test="commuType > 0">
+			and c.commu_type = #{commuType}
+		</if>
+		
+		<if test="commuSearch != null">
+			<if test="searchType == 0">
+			and ((BOARD_TITLE LIKE '%'||#{commuSearch}||'%') or (BOARD_CONTENT LIKE '%'||#{commuSearch}||'%') or (nickName LIKE '%'||#{commuSearch}||'%'))
+			</if>
+			<if test="searchType == 1">
+			and (BOARD_TITLE LIKE '%'||#{commuSearch}||'%')
+			</if>
+			<if test="searchType == 2">
+			and (BOARD_CONTENT LIKE '%'||#{commuSearch}||'%')
+			</if>
+			<if test="searchType == 3">
+			and (nickName LIKE '%'||#{commuSearch}||'%')
+			</if>
+		</if>
+		
+		<if test="commuArray == 0 ">
+			order by b.create_date desc
+		</if>
+		<if test="commuArray == 1">
+			order by b.create_date desc
+		</if>
+		<if test="commuArray == 2">
+			order by c.sympt_count desc
+		</if>
+		<if test="commuArray == 3 ">
+			order by c.reply_count desc
+		</if>
+	</select>
+	
+	
+	<!-- 싱글벙글 커뮤니티 list select -->
+	<select id="selectCommuAllList" parameterType="hashmap" resultMap="CommuBoardResultSet">
+		select *
+		from board b
+			 join member on (b.board_writer = member_id)
+     		 join community c on (b.board_no = c.board_no)
+		where b.b_status = 'Y' and b.board_type = '2'
+		<if test="commuType > 0">
+			and c.commu_type = #{commuType}
+		</if>
+		
+		<!-- 검색 (Search) -->
+		<if test="commuSearch != null">
+			<if test="searchType == 0">
+			and ((BOARD_TITLE LIKE '%'||#{commuSearch}||'%') or (BOARD_CONTENT LIKE '%'||#{commuSearch}||'%') or (nickName LIKE '%'||#{commuSearch}||'%'))
+			</if>
+			<if test="searchType == 1">
+			and (BOARD_TITLE LIKE '%'||#{commuSearch}||'%')
+			</if>
+			<if test="searchType == 2">
+			and (BOARD_CONTENT LIKE '%'||#{commuSearch}||'%')
+			</if>
+			<if test="searchType == 3">
+			and (nickName LIKE '%'||#{commuSearch}||'%')
+			</if>
+		</if>
+		
+		<!-- 리스트 정렬 -->
+		<if test="commuArray == 0 ">
+			order by b.create_date desc
+		</if>
+		<if test="commuArray == 1">
+			order by b.create_date desc
+		</if>
+		<if test="commuArray == 2">
+			order by c.sympt_count desc
+		</if>
+		<if test="commuArray == 3 ">
+			order by c.reply_count desc
+		</if>
+	</select>
+	
+	
+	<!-- 게시글 등록 (insert) -->
+	<insert id="insertCommuBoard">
+		insert all
+		into board
+		values(SEQ_BID.nextval, #{boardType}, #{boardTitle}, #{boardContent}, sysdate, sysdate, default, default, #{writer}, default, default)
+		into community
+		values(SEQ_BID.currval, #{symptCount}, #{commuType}, default)
+		select * from dual
+	</insert>
+	
+	<insert id="insertAttm">
+		insert all
+		<foreach collection="list" item="a">
+			into IMG_REPOSITORY
+			values(SingleRior_aid, #{a.imgOriginalName}, #{a.imgRename}, sysdate, sysdate, default,
+			<if test="bNo == null">
+				seq_bId.currval,
+			</if>
+			<if test="bNo != null">
+				#{bNo},
+			</if>
+			#{a.imgPath}, #{a.boardType}, #{a.level})
+		</foreach>
+		select * from dual
+	</insert>
+	
+	<!-- 게시글 상세보기 -->
+	<!-- 게시글 select -->
+	<update id="addCount">
+		update board
+		set board_count = board_count + 1
+		where board_no = #{bNo}
+	</update>
+	
+	<select id="selectCommuBoard" resultMap="CommuBoardResultSet">
+		select *
+		from board b
+			 join member on (board_writer = member_id)
+			 join community c on (b.board_no = c.board_no)
+		where b_status='Y' and b.board_no = #{bNo}
+	</select>
+	
+	<select id="selectAttmBoard" resultMap="attachmentResultSet">
+		select *
+		from IMG_REPOSITORY
+		where IMG_STATUS = 'Y' and IMG_B_TYPE = '2' and img_key = #{bNo}
+	</select>
+	
+	
+	<!-- 공감 (sympt) -->
+	<!-- 공감하기 (on) -->
+	<insert id="symptOn">
+		insert into WISHLIST
+		values(#{memberId}, #{boardNo})
+	</insert>
+	
+	<update id="addSymptCount">
+		update community
+		set SYMPT_COUNT = SYMPT_COUNT + 1
+		where board_no = #{bNo}
+	</update>
+	
+	<!-- 공감 count 불러오기 -->
+	<select id="selectSymptOn" resultMap="wishListResultSet">
+		select *
+		from wishList
+		where MEMBER_ID = #{memberId} and BOARD_NO = #{boardNo}
+	</select>
+	
+	<!-- 공감하기 (off) -->
+	<delete id="symptOff">
+		delete wishList
+		where board_no=#{boardNo} and member_id=#{memberId}
+	</delete>
+	
+	<update id="deleteSymptCount">
+		update community
+		set SYMPT_COUNT = SYMPT_COUNT - 1
+		where board_no = #{bNo}
+	</update>
+	
+	
+	<!-- 댓글 -->
+	<!-- 댓글 list select -->
+	<select id="selectReply" resultMap="replyResultSet">
+		select REPLY_NO, REPLY_CONTENT, REPLY_CREATE_DATE, REPLY_MODIFY_DATE, RE_SECRET, REPLY_STATUS, r.MEMBER_ID, BOARD_NO, REPORT_STATUS, NICKNAME, IMG_SERVER_NAME, GROUP_NO
+		from reply r
+			left join member m on (r.MEMBER_ID = m.MEMBER_ID)
+			left join IMG_REPOSITORY on (IMG_KEY = m.MEMBER_ID)
+		where BOARD_NO = #{boardNo} and REPLY_STATUS = 'Y'
+		order by reply_no
+	</select>
+	
+	<!-- 댓글 등록 (insert) -->
+	<insert id="insertReply">
+		insert into reply
+		values(seq_rid.nextval, #{replyContent}, sysdate, sysdate, #{replySecret}, default, #{memberId}, #{boardNo}, default, seq_rid.currval)
+	</insert>
+	
+	<!-- 댓글 count up -->
+	<update id="replyCountUp">
+		update community
+		set reply_count = reply_count + 1
+		where board_no = #{bNo}
+	</update>
+	
+	<!-- 댓글 수정 (update) -->
+	<update id="updateReply">
+		update reply
+		set REPLY_CONTENT = #{content}, REPLY_MODIFY_DATE = sysdate, RE_SECRET = #{secret}
+		where REPLY_NO = #{rNo}
+	</update>
+	
+	<select id="replyOneSelect" resultMap="replyResultSet"> 
+		select *
+		from reply
+		where REPLY_NO = #{replyNo} and REPLY_STATUS = 'Y'
+	</select>
+	
+	<!-- 댓글 삭제 (delete) -->
+	<update id="deleteReply">
+		update REPLY
+		set REPLY_STATUS = 'N'
+		where REPLY_NO = #{rNo}
+	</update>
+	
+	<!-- 댓글 count down -->
+	<update id="replyCountDown">
+		update community
+		set reply_count = reply_count - 1
+		where board_no = #{bNo}
+	</update>
+	
+	<!-- 대댓글 등록 (insert) -->
+	<insert id="insertReReply">
+		insert into reply
+		values(seq_rid.nextval, #{r.replyContent}, sysdate, sysdate, #{r.replySecret}, default, #{r.memberId}, #{r.boardNo}, default, #{gNo})
+	</insert>
+	
+	
+	<!-- 게시글 수정 (update) -->
+	<!-- 첨부파일 삭제 -->
+	<delete id="deleteAttm">
+		delete from IMG_REPOSITORY
+		where IMG_SERVER_NAME in
+		<foreach collection="list" open="(" close=")" separator="," item="item">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<!-- 내용 수정 -->
+	<update id="commuUpdate">
+		update community
+		set commu_type = #{commuType}
+		where board_no = #{boardNo}
+	</update>
+	<update id="updateCommuBoard">
+		update board
+		set board_title = #{boardTitle}, board_content = #{boardContent}, MODIFY_DATE = sysdate, board_type = #{boardType}
+		where board_no = #{boardNo}
+	</update>
+	
+	<!-- 첨부파일 level 변경 -->
+	<update id="updateAttmLevel">
+		update IMG_REPOSITORY
+		set IMG_LEVEL = 0
+		where IMG_NO = (select min(IMG_NO)
+						from IMG_REPOSITORY
+						     join board on(board_type = IMG_B_TYPE)
+						where IMG_B_TYPE = #{strBNo})
+	</update>
+	
+	
+	<!-- 게시글 삭제 (delete) -->
+	<!-- 게시글 상태(status) 'N'으로 변경 -->
+	<update id="deleteCommuBoard">
+		update board
+		set B_STATUS = 'N'
+		where board_no = #{bNo}
+	</update>
+	
+	<!-- 첨부파일 상태(status) 'N'으로 변경 -->
+	<update id="updateAttmStatus">
+		update IMG_REPOSITORY
+		set IMG_STATUS = 'N'
+		where IMG_KEY = #{strBNo}
+	</update>
+	
+	
+	<!-- 게시글 신고 (report) -->
+	<insert id="commuReport">
+		insert into REPORT
+		values(SEQ_RPID.nextval, #{reportType}, #{contentNo}, #{reportCate}, sysdate, #{memberId})
+	</insert>
+	
+	<!-- reportStatus 변경 -->
+	<update id="updateReportStatus">
+		<if test='cate.equals("B")'>
+			update Board
+			set REPORT_STATUS = 'Y'
+			where board_no = #{cNo}
+		</if>
+		<if test='cate.equals("R")'>
+			update Reply
+			set REPORT_STATUS = 'Y'
+			where REPLY_NO = #{cNo}
+		</if>
+	</update>
+	
+	<!-- 신고여부 확인 -->
+	<select id="selectReport" resultMap="reportResultSet"> 
+		select *
+		from report
+		where CONTENT_NO=#{cNo} and MEMBER_ID=#{id} and REPORT_CATE=#{cate}
+	</select>
+
+</mapper>

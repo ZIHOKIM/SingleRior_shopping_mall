@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mtbatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="marketMapper">
+
+	<resultMap type="MarketBoard" id="marketBoardResultSet">
+		<id column="BOARD_NO" property="boardNo"/>
+		<result column="BOARD_TYPE" property="boardType"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="BOARD_CONTENT" property="boardContent"/>
+		<result column="CREATE_DATE" property="createDate"/>
+		<result column="UPDATE_DATE" property="modifyDate"/>
+		<result column="NOTICE_STATUS" property="noticeStatus"/>
+		<result column="B_STATUS" property="status"/>
+		<result column="BOARD_WRITER" property="writer"/>
+		<result column="NICKNAME" property="nickName"/>
+		<result column="BOARD_COUNT" property="count"/>
+		<result column="PRICE" property="marketPrice"/>
+		<result column="MARKET_TYPE" property="marketType"/>
+		<result column="LIKE_COUNT" property="likeCount"/>
+		<result column="REPLY_COUNT" property="replyCount"/>
+		<result column="REPORT_STATUS" property="reportStatus"/>
+		<result column="IMG_SERVER_NAME" property="profileImg"/>
+		<result column="ADDRESS" property="address"/>
+	</resultMap>
+	
+	<resultMap type="Attachment" id="attachmentResultSet">
+		<id property="imgNo" column="IMG_NO"/>
+		<result property="imgOriginalName" column="IMG_NAME"/>
+		<result property="imgRename" column="IMG_SERVER_NAME"/>
+		<result property="imgCreateDate" column="IMG_CREATE_DATE"/>
+		<result property="imgModifyDate" column="IMG_CREATE_DATE"/>
+		<result property="imgKey" column="IMG_KEY"/>
+		<result property="imgPath" column="IMG_PATH"/>
+		<result property="imgStatus" column="IMG_STATUS"/>
+		<result property="level" column="IMG_LEVEL"/>
+		<result property="boardType" column="IMG_B_TYPE"/>
+	</resultMap>
+	
+	
+	<insert id="marketBoardInsert">
+		insert all
+			into board
+		values(SEQ_BID.nextval, #{boardType}, #{boardTitle}, #{boardContent}, sysdate, sysdate, default, default, #{writer}, default, default)
+			into MARKET
+		values(SEQ_BID.currval, #{marketPrice}, #{marketType}, default, default, #{location}, #{productNo})
+		select * from dual
+	</insert>
+	
+	<insert id="insertAttm" >
+		insert all
+		<foreach collection="list" item="a">
+			into IMG_REPOSITORY
+			values(SingleRior_aid, #{a.imgOriginalName}, #{a.imgRename}, sysdate, sysdate, default, 
+			<if test="bNo == null">
+			 	seq_bid.currval, 
+			 </if>
+			 <if test="bNo != null">
+				 #{bNo},
+			 </if>
+			 #{a.imgPath}, #{a.boardType}, #{a.level})
+		</foreach>
+		select * from dual
+	</insert>
+	
+	<update id="marketBoardCount">
+		update board
+		set board_count = board_count + 1
+		where board_no = #{bNo}
+	</update>
+	
+	<select id="getMkListCount" resultType="_int">
+		select count(*)
+		from BOARD b
+			join market m on(m.board_no = b.board_no)
+		where BOARD_TYPE = '3' and B_STATUS = 'Y'
+				<if test="marketType > 0">
+			and m.MARKET_TYPE = #{marketType}
+		</if>
+		
+		<if test="marketSearch != null">
+			<if test=" searchType==1">
+			and (BOARD_TITLE LIKE '%'||#{marketSearch}||'%')
+			</if>
+			<if test=" searchType==2">
+			and (BOARD_CONTENT LIKE '%'||#{marketSearch}||'%')
+			</if>
+			<if test=" searchType==3">
+			and (BOARD_WRITER LIKE '%'||#{marketSearch}||'%')
+			</if>
+			<if test=" searchType==0">
+			and (BOARD_WRITER LIKE '%'||#{marketSearch}||'%')
+			or (BOARD_CONTENT LIKE '%'||#{marketSearch}||'%')
+			or (BOARD_TITLE LIKE '%'||#{marketSearch}||'%')
+			</if>
+		</if>
+		
+	</select>
+	
+	<select id="marketBoardList" parameterType="hashmap" resultMap="marketBoardResultSet">
+		select *
+		from BOARD b
+			join market m on(m.board_no = b.board_no)
+			join member on(board_writer = member_id)
+		where BOARD_TYPE = '3' and B_STATUS = 'Y'
+
+		<if test="marketType > 0">
+			and m.MARKET_TYPE = #{marketType}
+		</if>
+		
+		<if test="marketSearch != null">
+			<if test=" searchType==1">
+			and (BOARD_TITLE LIKE '%'||#{marketSearch}||'%')
+			</if>
+			<if test=" searchType==2">
+			and (BOARD_CONTENT LIKE '%'||#{marketSearch}||'%')
+			</if>
+			<if test=" searchType==3">
+			and (BOARD_WRITER LIKE '%'||#{marketSearch}||'%')
+			</if>
+			<if test=" searchType==0">
+			and (BOARD_WRITER LIKE '%'||#{marketSearch}||'%')
+			or (BOARD_CONTENT LIKE '%'||#{marketSearch}||'%')
+			or (BOARD_TITLE LIKE '%'||#{marketSearch}||'%')
+			</if>
+		</if>
+		
+		<if test="marketArray == 1">
+			order by m.LIKE_COUNT desc
+		</if>
+		
+		<if test="marketArray == 2">
+			order by m.REPLY_COUNT desc
+		</if>
+		
+		<if test="marketArray == 0 ">
+			order by b.BOARD_NO desc
+		</if>
+	</select>
+		
+	<select id="attmListSelect" resultMap = "attachmentResultSet">
+		select *
+		from IMG_REPOSITORY
+		where  IMG_B_TYPE = '3' and IMG_STATUS = 'Y' and IMG_LEVEL = 0
+	</select>
+	
+	<select id="marketTopList" parameterType="hashmap" resultMap="marketBoardResultSet">
+		
+		select *        
+		from(	select *
+				from BOARD b
+					join market mk on(b.BOARD_NO = mk.BOARD_NO)
+					join member on (board_writer = member_id)
+				where BOARD_TYPE = '3' and B_STATUS = 'Y'
+				<if test="marketType > 0">
+				and MARKET_TYPE = #{marketType}
+				</if>
+				order by BOARD_COUNT desc)
+		<![CDATA[
+		where rownum <= 6
+		]]>
+	</select>
+		
+	<select id="topAttmListSelect" resultMap = "attachmentResultSet">
+		
+				select *
+				from IMG_REPOSITORY
+		            join board b on(BOARD_NO=IMG_KEY)
+		            join market m on(b.BOARD_NO = m.BOARD_NO)
+				where  IMG_B_TYPE = '3' and IMG_STATUS = 'Y' and IMG_LEVEL = 0
+				
+				<if test="marketType > 0">
+				and MARKET_TYPE = #{marketType}
+				</if>
+				order by BOARD_COUNT desc
+		
+	</select>
+	
+	<resultMap type="WishList" id="wishListResultSet">
+		<id property="boardNo" column="BOARD_NO"/>
+		<id property="memberId" column="MEMBER_ID"/>
+	</resultMap>
+	
+	<insert id="marketLike" >
+		insert into WISHLIST
+		values(#{memberId},#{boardNo} )
+	</insert>
+	
+	<select id="wishListSelect" resultMap="wishListResultSet">
+		select *
+		from wishList
+		where MEMBER_ID = #{memberId} and BOARD_NO = #{boardNo}
+	</select>
+	
+	<delete id="marketLikeCancle">
+		delete wishList
+		where board_no=#{boardNo} and member_id=#{memberId}
+	</delete>
+	
+	<select id="marketBoardSelect" resultMap="marketBoardResultSet">
+		select ADDRESS,NICKNAME,IMG_SERVER_NAME,b.BOARD_NO,BOARD_TYPE,BOARD_TITLE,BOARD_CONTENT,b.CREATE_DATE,b.MODIFY_DATE,NOTICE_STATUS,B_STATUS,BOARD_WRITER,BOARD_COUNT,REPORT_STATUS,PRICE,MARKET_TYPE,LIKE_COUNT,REPLY_COUNT,LOCATION
+		from board b
+			left join market k on(k.BOARD_NO = b.BOARD_NO)
+			left join member on (board_writer = member_id)
+			left join IMG_REPOSITORY on(IMG_KEY = MEMBER_ID)
+		where b.BOARD_NO = #{bNo} and b.B_STATUS = 'Y'
+	</select>
+	
+	<select id="selectAttm" resultMap="attachmentResultSet">
+		select *
+		from IMG_REPOSITORY
+		where IMG_KEY = #{strBNo} and IMG_STATUS = 'Y'
+	</select>
+	
+	<resultMap type="Reply" id="replyResultSet">
+		<id column="REPLY_NO" property="replyNo"/>
+		<result column="REPLY_CONTENT" property="replyContent"/>
+		<result column="REPLY_MODIFY_DATE" property="replyModifyDate"/>
+		<result column="REPLY_CREATE_DATE" property="replyCreateDate"/>
+		<result column="MEMBER_ID" property="memberId"/>
+		<result column="RE_SECRET" property="replySecret"/>
+		<result column="REPLY_STATUS" property="replyStatus"/>
+		<result column="BOARD_NO" property="boardNo"/>
+		<result column="NICKNAME" property="nickName"/>
+		<result column="REPORT_STATUS" property="reportStatus"/>
+		<result column="IMG_SERVER_NAME" property="profileImg"/>
+		<result column="GROUP_NO" property="groupNo"/>
+	</resultMap>
+	
+	<resultMap type="ReReply" id="reReplyResultSet">
+		<id column="RE_REPLY_NO" property="reReplyNo"/>
+		<result column="RE_REPLY_CONTENT" property="reReplyContent"/>
+		<result column="RE_REPLY_CREATE_DATE" property="reReplyCreateDate"/>
+		<result column="RE_REPLY_MODIFY_DATE" property="reReplyModifyDate"/>
+		<result column="RE_REPLY_SECRET" property="reReplySecret"/>
+		<result column="RE_REPLY_STATUS" property="reReplyStatus"/>
+		<result column="REPLY_NO" property="replyNo"/>
+		<result column="MEMBER_ID" property="memberId"/>
+		<result column="BOARD_NO" property="boardNo"/>
+		<result column="NICKNAME" property="nickName"/>
+		<result column="REPORT_STATUS" property="reportStatus"/>
+	</resultMap>
+	
+	
+	<insert id="replyInsert">
+		insert into reply
+		values(seq_rid.nextval, #{replyContent}, sysdate, sysdate, #{replySecret}, default, #{memberId}, #{boardNo},default,
+		<if test="groupNo ==0">
+		seq_rid.currval)
+		</if>
+		<if test="groupNo !=0">
+		#{groupNo})
+		</if>
+		
+	</insert>
+	
+	<select id="replySelect" resultMap="replyResultSet">
+		select REPLY_NO,REPLY_CONTENT,REPLY_CREATE_DATE,REPLY_MODIFY_DATE,RE_SECRET,REPLY_STATUS,r.MEMBER_ID,BOARD_NO,REPORT_STATUS,NICKNAME,IMG_SERVER_NAME,GROUP_NO
+		from reply r
+			left join member m on(r.MEMBER_ID = m.MEMBER_ID)
+			left join IMG_REPOSITORY on(IMG_KEY = m.MEMBER_ID)
+		where BOARD_NO=#{boardNo} and REPLY_STATUS = 'Y'
+		order by reply_no 
+	</select>
+	
+	
+	<update id="boardUpdate">
+		update board
+		set BOARD_TITLE = #{boardTitle}, BOARD_CONTENT = #{boardContent}, MODIFY_DATE = sysdate, BOARD_TYPE = #{boardType}
+		where BOARD_NO = #{boardNo}
+	</update>
+	
+	<update id="marketUpdate">
+		update MARKET
+		set PRICE = #{marketPrice}, MARKET_TYPE = #{marketType}
+		where BOARD_NO = #{boardNo}
+	</update>
+	
+	
+	<update id="marketBoardDelete">
+		update board
+		set B_STATUS = 'N'
+		where BOARD_NO = #{bNo}
+	</update>
+	
+	<update id="updateAttmStatus">
+		update IMG_REPOSITORY
+		set IMG_STATUS = 'N'
+		where IMG_KEY = #{strBNo}
+	</update>
+	
+	<update id="AttmLevelUpdate">
+		update IMG_REPOSITORY
+		set IMG_LEVEL = 0
+		where IMG_NO =  (select min(IMG_NO)
+					   	from IMG_REPOSITORY
+					   	where IMG_KEY = #{strBNo})
+	</update>
+	
+	<delete id="deleteAttm">
+	delete from IMG_REPOSITORY
+		where IMG_SERVER_NAME in
+		<foreach collection="list" open="(" close=")" separator="," item="item">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<update id="replyDelete">
+		update REPLY
+		set REPLY_STATUS = 'N'
+		where REPLY_NO = #{rNo}
+	</update>
+	
+	<update id="replyUpdate">
+		update REPLY
+		set REPLY_CONTENT = #{content},REPLY_MODIFY_DATE = sysdate, RE_SECRET = #{secret}
+		where REPLY_NO = #{rNo}
+	</update>
+	
+	<update id="likeCount">
+		update MARKET
+		set LIKE_COUNT = LIKE_COUNT + 1
+		where board_no = #{bNo}
+	</update>
+	
+	<update id="replyCount">
+		update MARKET
+		set REPLY_COUNT = REPLY_COUNT + 1
+		where board_no = #{bNo}
+	</update>
+	
+	<update id="likeCancleCount">
+		update MARKET
+		set LIKE_COUNT = LIKE_COUNT - 1
+		where board_no = #{bNo}
+	</update>
+	
+	<update id="replyCancleCount">
+		update MARKET
+		set REPLY_COUNT = REPLY_COUNT - 1
+		where board_no = #{bNo}
+	</update>
+	
+	<resultMap type="Report" id="reportResultSet">
+		<id column="REPORT_NO" property="reportNo"/>
+		<result column="BOARD_NO" property="boardNo"/>
+		<result column="CONTENT_NO" property="contentNo"/>
+		<result column="REPORT_TYPE" property="reportType"/>
+		<result column="REPORT_CATE" property="reportCate"/>
+		<result column="USER_ID" property="memberId"/>
+		<result column="CREATE_DATE" property="createDate"/>
+	</resultMap>
+	
+	<insert id="marketReport">
+		insert into REPORT
+		values(SEQ_RPID.nextval, #{reportType}, #{contentNo},#{reportCate},sysdate, #{memberId})
+	</insert>
+	
+	<select id="reportSelect" resultMap="reportResultSet"> 
+		select *
+		from report
+		where CONTENT_NO=#{cNo} and REPORT_CATE=#{cate}
+	</select>
+	
+	<update id="updateReportStatus">
+		<if test='cate.equals("B")'>
+		update BOARD
+		</if>
+		
+		<if test='cate.equals("R")'>
+		update REPLY
+		</if>
+		
+		<if test='cate.equals("RR")'>
+		update RE_REPLY
+		</if>
+		
+		set  REPORT_STATUS='Y'
+		
+		<if test='cate.equals("B")'>
+		where BOARD_NO = #{cNo}
+		</if>
+		
+		<if test='cate.equals("R")'>
+		where REPLY_NO = #{cNo}
+		</if>
+		
+		<if test='cate.equals("RR")'>
+		where RE_REPLY_NO = #{cNo}
+		</if>
+	</update>
+	
+	 <resultMap type="StoreBoard" id="StoreBoardResultSet">
+		<id column="BOARD_NO" property="boardNo"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="CREATE_DATE" property="createDate"/>
+		<result column="B_STATUS" property="boardStatus"/>
+		<result column="BOARD_WRITER" property="boardWriter"/>
+		<result column="BOARD_COUNT" property="boardCount"/>
+		<result column="PRODUCT_NO" property="productNo"/>
+		<result column="PRODUCT_PRICE" property="price"/>
+		<result column="PRODUCT_DISCOUNT" property="discount"/>
+		<result column="PRODUCT_OPTION" property="option"/>
+		<result column="MODEL_NAME" property="modelName"/>
+		<result column="PRODUCT_STATUS" property="productStatus"/>
+		<result column="IMG_SERVER_NAME" property="imgServerName"/>
+		<result column="IMG_CREATE_DATE" property="imgCreateDate"/>
+		<result column="IMG_STATUS" property="imgStatus"/>
+		<result column="IMG_KEY" property="imgKey"/>
+		<result column="IMG_B_TYPE" property="imgBoardtype"/>
+		<result column="IMG_LEVEL" property="lmgLevel"/>
+	</resultMap>
+	
+	<select id="selectProduct" resultMap="StoreBoardResultSet"> 
+	SELECT *
+	 FROM PRODUCT p
+	     JOIN BOARD USING(BOARD_NO)
+	     JOIN IMG_REPOSITORY on(IMG_KEY = (SELECT TO_CHAR(( SELECT BOARD_NO FROM PRODUCT WHERE PRODUCT_NO = ${productNo})) FROM DUAL))
+	 where p.product_no =${productNo} and p.product_status = 'Y' AND img_level=0
+	 </select>
+</mapper>

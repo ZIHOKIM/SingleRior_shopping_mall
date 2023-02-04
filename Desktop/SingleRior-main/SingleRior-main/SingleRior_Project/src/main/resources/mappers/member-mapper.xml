@@ -1,0 +1,799 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="memberMapper">
+
+	<resultMap type="Member" id="MemberResultSet">
+		<id column="MEMBER_ID" property="memberId"/>
+		<result column="MEMBER_PWD" property="memberPwd"/>
+		<result column="MEMBER_NAME" property="memberName"/>
+		<result column="NICKNAME" property="nickName"/>
+		<result column="PHONE" property="phone"/>
+		<result column="EMAIL" property="email"/>
+		<result column="ADDRESS" property="address"/>
+		<result column="STATUS" property="memberStatus"/>
+		<result column="AUTHORITY" property="memberAuthority"/>
+	</resultMap>
+
+	<select id="login" resultMap="MemberResultSet">
+		select * 
+		from member
+			where MEMBER_ID=#{memberId}
+				and STATUS = 'Y'
+	</select>
+	
+	<!--  아이디 중복확인 -->
+	<select id ="checkId" resultType="_int">
+		select count(*)
+		from member
+		where member_id = #{memberId}
+	</select>
+	
+	<!-- 닉네임 중복확인 -->
+	<select id ="checkNickName" resultType="_int">
+		select count(*)
+		from member
+		where nickname = #{nickName}
+	</select>
+	
+	<!-- email 중복확인 -->
+	<select id ="checkEmailConfirm" resultType="_int">
+		select count(*)
+		from member
+		where email = #{email} and status = 'Y'
+	</select>
+	
+	<insert id = "insertMember">
+		insert into member
+		values(#{memberId}, #{memberPwd}, #{memberName}, 
+		<if test="nickName == null">
+			null,
+		</if>
+		<if test="nickName != null">
+			#{nickName},
+		</if>
+		<if test="phone == null">
+			null,
+		</if>
+		<if test="phone != null">
+			#{phone},
+		</if>
+		 #{email}, 
+		 <if test="address == null">
+			null,
+		</if>
+		<if test="address != null">
+			#{address},
+		</if>
+		 sysdate, sysdate, default, default)
+	</insert>
+	
+	<select id ="findId" resultType="string">
+		select member_id
+		from member
+		where member_name = #{memberName} and email = #{email} and status = 'Y'
+	</select>
+	
+	<select id ="findPwd" resultType="_int">
+		select count(*)
+		from member
+		where member_id = #{memberId} and email = #{email} and status = 'Y'
+	</select>
+	
+	<!--  이메일로 새로운 비밀번호 발급된거 넣어주기 -->
+	<update id="changePwd">
+		update member
+		set member_pwd = #{memberPwd}
+		where email = #{email}
+			and member_id = #{memberId}
+			and status = 'Y'
+	</update>
+	
+	<!-- 회원정보 수정 -->
+	<update id="updateMember">
+		update member
+		set 
+		nickName = #{nickName},
+		<if test="phone != null">
+			phone = #{phone},
+		</if>
+		<if test="phone == null">
+			phone = null,
+		</if>
+		<if test="address != null">
+			address = #{address},
+		</if>
+		<if test="address == null">
+			address = null,
+		</if>
+		modifyDate = sysdate
+		<if test="memberPwd != null">
+			,member_Pwd = #{memberPwd}
+		</if>
+		where
+			 member_id = #{memberId} and status = 'Y'
+	</update>
+	
+	<!-- 프로필 사진 유무 확인 -->
+	<select id="getProfilePhotoCount" resultType="_int">
+		select count(*)
+		from IMG_REPOSITORY
+		where img_key = #{memberId}
+	</select>
+	
+	<insert id="insertProfile">
+		insert into IMG_REPOSITORY
+		values(SingleRior_aid, #{imgOriginalName}, #{imgRename}, sysdate, sysdate, default, #{imgKey}, #{imgPath}, #{boardType}, 0)
+	</insert>
+	
+	<update id="updateProfile">
+		update img_repository
+		set img_name = #{imgOriginalName}, IMG_SERVER_NAME = #{imgRename}, IMG_MODIFY_DATE = sysdate, IMG_PATH = #{imgPath}
+		where img_key =  #{imgKey}
+	</update>
+	
+	<select id="selectProfile" resultMap="attachmentResultSet">
+		select *
+		from img_repository
+		where img_key = #{memberId}
+	</select>
+	
+	<resultMap type="Attachment" id="attachmentResultSet">
+		<id property="imgNo" column="IMG_NO"/>
+		<result property="imgOriginalName" column="IMG_NAME"/>
+		<result property="imgRename" column="IMG_SERVER_NAME"/>
+		<result property="imgCreateDate" column="IMG_CREATE_DATE"/>
+		<result property="imgModifyDate" column="IMG_CREATE_DATE"/>
+		<result property="imgKey" column="IMG_KEY"/>
+		<result property="imgPath" column="IMG_PATH"/>
+		<result property="imgStatus" column="IMG_STATUS"/>
+		<result property="level" column="IMG_LEVEL"/>
+		<result property="boardType" column="IMG_B_TYPE"/>
+	</resultMap>
+	
+	<delete id="deleteProfile">
+		delete from img_repository
+		where img_key = #{memberId}
+	</delete>
+	
+	<update id="deleteMember">
+		update member
+		set status = 'N'
+		where member_id = #{memberId}
+	</update>
+	
+	<delete id="deleteKakaoMember">
+		delete from member
+		where member_id = #{memberId}
+	</delete>
+	
+	<!-- 내가 쓴 글 리스트 카운트 -->
+	<select id="getMyContentListCount" resultType="_int">
+		select count(*)
+		from board
+		where board_writer = #{memberId}
+		<if test='category != "전체"'>
+			<if test='category == "싱글벙글"'>
+				and board_type = 2
+			
+			</if>
+			<if test='category == "씽씽마켓"'>
+				and board_type = 3
+			</if>
+			and b_status = 'Y'
+		</if>
+		
+	</select>
+	
+	<resultMap type="Board" id="boardResultSet">
+		<id column="BOARD_NO" property="boardNo"/>
+		<result column="BOARD_TYPE" property="boardType"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="BOARD_CONTENT" property="boardContent"/>
+		<result column="CREATE_DATE" property="createDate"/>
+		<result column="MODIFY_DATE" property="modifyDate"/>
+		<result column="NOTICE_STATUS" property="noticeStatus"/>
+		<result column="B_STATUS" property="status"/>
+		<result column="BOARD_WRITER" property="writer"/>
+		<result column="BOARD_COUNT" property="count"/>
+		<result column="QNA_CATEGORY" property="qnaCategory"/>
+		<result column="PRODUCTNO" property="productNo"/>
+	</resultMap>
+	
+	<resultMap type="Reply" id="replyResultSet">
+		<id column="REPLY_NO" property="replyNo"/>
+		<result column="REPLY_CONTENT" property="replyContent"/>
+		<result column="REPLY_CREATE_DATE" property="replyCreateDate"/>
+		<result column="REPLY_MODIFY_DATE" property="replyModifyDate"/>
+		<result column="RE_SECRET" property="replySecret"/>
+		<result column="REPLY_STATUS" property="replyStatus"/>
+		<result column="MEMBER_ID" property="memberId"/>
+		<result column="BOARD_NO" property="boardNo"/>
+		<result column="BOARD_TYPE" property="boardType"/>
+	</resultMap>
+	
+	<select id="selectBoardList" resultMap="boardResultSet">
+		select *
+		from board
+		left join market mk using(BOARD_NO)
+		where board_writer = #{memberId}
+		<if test='category != "전체"'>
+			<if test='category == "싱글벙글"'>
+				and board_type = 2
+			
+			</if>
+			<if test='category == "씽씽마켓"'>
+				and board_type = 3
+			</if>
+		</if>
+			and b_status = 'Y'
+			 order by modify_date desc
+	</select>
+	
+	<select id="getLikeCount" resultType="_int">
+		select count(*)
+		from wishlist
+		where board_no = #{boardNo} 
+	</select>
+	
+	<select id="getReplyCount" resultType="_int">
+		select count(*)
+		from reply
+		where board_no = #{boardNo} and reply_status = 'Y'
+	</select>
+	
+	<select id="getMyReplyListCount" resultType="_int">
+	select count(*)
+	from reply r
+	join board b using(board_no)
+	where r.member_id = 'user02' and r.reply_status = 'Y'
+		<if test="category == '싱글벙글'">
+  		  and  b.board_type = 2
+  		  </if>
+  		  <if test="category == '씽씽마켓'">
+  		  and  b.board_type = 3
+  		  </if>
+  		  
+	</select>
+	
+	<select id="selectReplyList" resultMap="replyResultSet">
+		select reply_no, reply_content,reply_modify_date, member_id, board_no
+		from reply r
+		join board b using(board_no)
+		where r.member_id = 'user02' and r.reply_status = 'Y'
+	     <if test="category == '싱글벙글'">
+  		  and  b.board_type = 2
+  		  </if>
+  		  <if test="category == '씽씽마켓'">
+  		  and  b.board_type = 3
+  		  </if>
+  		   order by reply_modify_date desc
+	</select>
+	
+	<select id="selectReplyBoardList" resultMap="boardResultSet">
+		select *
+		from board
+		left join market using(board_no)
+		<if test='boardType == 2'>
+			join community using(board_no)
+		</if>
+		<if test='boardType == 3'>
+			join market using(board_no)
+		</if>
+		where board_No = #{boardNo}
+	</select>
+	
+	<resultMap type="ProductInquiry" id="productInquiryResultSet">
+		<id column="INQUIRY_NO" property="inquiryNo"/>
+		<result column="INQUIRY_TITLE" property="inquiryTitle"/>
+		<result column="INQUIRY_CONTENT" property="inquiryContent"/>
+		<result column="INQUIRY_DATE" property="inquiryDate"/>
+		<result column="PRODUCT_NO" property="productNo"/>
+		<result column="MEMBER_ID" property="memberId"/>
+		<result column="INQUIRY_STATUS" property="inquiryStatus"/>
+		<result column="ADMIN_STATUS" property="adminStatus"/>
+		<result column="INQUIRY_ANSWER" property="inquiryAnswer"/>
+	</resultMap>
+	
+	<select id="getMyAskListCount" resultType="_int">
+		select count(*)
+		from product_inquiry
+		where inquiry_status = 'Y' and member_id = #{memberId}
+		<if test="status == 'yet'">
+			 and admin_status = 'N'
+		</if>
+		<if test="status == 'done'">
+			 and admin_status = 'Y'
+		</if>
+	</select>
+	
+	<select id="selectMyAskList" resultMap="productInquiryResultSet">
+		select *
+		from product_inquiry
+		where inquiry_status = 'Y' and member_id = #{memberId}
+		<if test="status == 'yet'">
+			 and admin_status = 'N'
+		</if>
+		<if test="status == 'done'">
+			 and admin_status = 'Y'
+		</if>
+	</select>
+	
+	<select id="getImageProduct" resultMap="attachmentResultSet">
+	select *
+	from img_repository 
+	where img_key = (SELECT TO_CHAR( (select board_no
+                from product
+                where product_no =#{productNo}))FROM DUAL) and img_level =0
+	</select>
+	
+	<resultMap type="Product" id="productResultSet">
+		<id column="PRODUCT_NO" property="productNo"/>
+		<result column="PRODUCT_PRICE" property="productPrice"/>
+		<result column="PRODUCT_DISCOUNT" property="productDiscount"/>
+		<result column="PRODUCT_OPTION" property="productOption"/>
+		<result column="MODEL_NAME" property="modelName"/>
+		<result column="BRAND" property="brand"/>
+		<result column="DELIVERY_PAYMENT" property="deliveryPayment"/>
+		<result column="PRODUCT_STATUS" property="productStatus"/>
+		<result column="PRO_SUBCATE_CODE" property="proSubCateCode"/>
+		<result column="BOARD_NO" property="boardNo"/>
+		<result column="BOARD_TITLE" property="productName"/>
+	</resultMap>
+	
+	<select id="getDetailProduct" resultMap="productResultSet">
+	select *
+	from product
+	join board b using (board_no)
+	where board_no = #{boardNo} and b.b_status = 'Y'
+	</select>
+	
+	
+	<select id="getWishListCount" resultType="_int">
+		select count(*)
+		from wishlist
+		where member_id = #{memberId}
+		<if test="category != null">
+			<if test="category == '스토어'">
+				and board_no in (select board_no
+				from board
+				where board_type = 1)
+			</if>
+			<if test="category == '싱글벙글'">
+				and board_no in (select board_no
+				from board
+				where board_type = 2)
+			</if>
+			<if test="category == '씽씽마켓'">
+				and board_no in (select board_no
+				from board
+				where board_type = 3)
+			</if>
+		</if>
+	</select>
+	
+	
+	<resultMap type="WishList" id="wishListResultSet">
+		<result column="MEMBER_ID" property="memberId"/>
+		<result column="BOARD_NO" property="boardNo"/>
+		<result column="BOARD_TYPE" property="boardType"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="IMG_SERVER_NAME" property="imgRename"/>
+		<result column="product_no" property="productNo"/>
+		<result column="productno" property="tProductNo"/>
+		<result column="product_price" property="productPrice"/>
+	</resultMap>
+	
+	<select id="selectWishList" resultMap="wishListResultSet">
+		select *
+		from wishlist
+		join board b using(board_no)
+		<if test="category == '스토어'">
+			join product p using(board_no)
+		</if>
+		<if test="category == '씽씽마켓'">
+			join market mk using(BOARD_NO)
+		</if>
+		where member_id = #{memberId} 
+		<if test="category != null">
+			<if test="category == '스토어'">
+				and board_no in (select board_no
+				from board
+				where board_type = 1)
+			</if>
+			<if test="category == '싱글벙글'">
+				and board_no in (select board_no
+				from board
+				where board_type = 2)
+			</if>
+			<if test="category == '씽씽마켓'">
+				and board_no in (select board_no
+				from board
+				where board_type = 3)
+			</if>
+		</if>
+	</select>
+	
+	<select id="getImgWishList" resultType="string">
+		select img_server_name
+		from img_repository
+		where img_key = #{imgKey} and img_level = 0
+	</select>
+	
+	<delete id="deleteWishList">
+		delete from wishlist
+		where member_id = #{memberId} and board_no =#{boardNo}
+	</delete>
+	
+	<select id="selectQna" resultMap="boardResultSet">
+		select *
+		from board
+		join QNA using(board_no)
+		where board_type = 5 
+		<if test="category == '주문/결제'">
+			and QNA_category = '주문/결제'
+		</if>
+		<if test="category == '배송관련'">
+			and QNA_category = '배송관련'
+		</if>
+		<if test="category == '취소/환불'">
+			and QNA_category = '취소/환불'
+		</if>
+		<if test="category == '반품/교환'">
+			and QNA_category = '반품/교환'
+		</if>
+			<if test="category == '증빙서류발급'">
+			and QNA_category = '증빙서류발급'
+		</if>
+		<if test="category == '로그인/회원정보'">
+			and QNA_category = '배송관련'
+		</if>
+		<if test="category == '서비스/기타'">
+			and QNA_category = '서비스/기타'
+		</if>
+	</select>
+	
+	<select id="getCartListCount" resultType="_int">
+		select count(*)
+		from cart
+		where member_id = #{memberId}
+	</select>
+	
+	<resultMap type="Cart" id="cartResultSet">
+		<id column="CART_NO" property="cartNo"/>
+		<result column="QUANTITY" property="quantity"/>
+		<result column="PAY_STATUS" property="payStatus"/>
+		<result column="PRODUCT_NO" property="productNo"/>
+		<result column="MEMBER_ID" property="memberId"/>
+		<result column="PRODUCT_OPTION" property="productOption"/>
+		<result column="PRODUCT_OPTION_1" property="productOptions"/>
+		<result column="PRODUCT_PRICE" property="productPrice"/>
+		<result column="PRODUCT_DISCOUNT" property="productDiscount"/>
+		<result column="BRAND" property="brand"/>
+		<result column="IMG_SERVER_NAME" property="imgRename"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="BOARD_NO" property="boardNo"/>
+	</resultMap>
+	
+	<select id="selectCartList" resultMap="cartResultSet">
+		SELECT *
+		FROM CART C
+ 		   jOIN PRODUCT USING(PRODUCT_NO)
+  			join board using (board_no)
+			WHERE C.MEMBER_ID = #{memberId} and c.pay_status = 'N'
+			order by cart_no desc
+	</select>
+	
+	<select id="selectCartImg" resultType="string">
+		select img_server_name
+		from img_repository
+		where img_key = (SELECT TO_CHAR( (select board_no
+                from product
+                where product_no = #{productNo}))FROM DUAL) 
+            and img_level =0
+	</select>
+	
+	<delete id="deleteCart">
+		delete from cart
+		where cart_no = #{cartNo}
+	</delete>
+	
+	<select id="getOrderListCount" resultType="_int">
+		select count(*)
+		from order_product op
+			 join order_detail od using(order_no)
+		where op.member_id = #{memberId} 
+		<if test="status != '전체'">
+			<if test="status != '구매확정'">
+				and status = #{status}
+			</if>
+			<if test="status == '구매확정'">
+				and (od.status = '구매확정' or od.status = '리뷰작성')
+			</if>
+		</if>
+		<if test="date == '1개월'">
+			 and op.order_DATE >= to_char(add_months(sysdate,-1),'YYYYMMDD')
+		</if>
+		<if test="date == '3개월'">
+			 and op.order_DATE >= to_char(add_months(sysdate,-3),'YYYYMMDD')
+		</if>
+		<if test="date == '1년'">
+			 and op.order_DATE >= to_char(add_months(sysdate,-12),'YYYYMMDD')
+		</if>
+	</select>
+	
+	<select id="selectCommonList" resultMap="orderResultSet">
+		select *
+		from order_detail od
+		join product using(product_no)
+		join board using using(board_no)
+        join order_product op using(order_no)
+		where member_id =#{memberId}
+		<if test="status2 == 'review'">
+				<if test="status == '구매확정'">
+					and od.status = '구매확정'
+				</if>
+				<if test="status == '리뷰작성'">
+					and od.status = '리뷰작성'
+				</if>
+		</if>
+		<if test="status2 == 'noReview'">
+			<if test="status != '전체'">
+				<if test="status != '구매확정'">
+					and status = #{status}
+				</if>
+				<if test="status == '구매확정'">
+					and (od.status = '구매확정' or od.status = '리뷰작성')
+				</if>
+			</if>
+		</if>
+		<if test="date == '1개월'">
+			 and order_DATE >= to_char(add_months(sysdate,-1),'YYYYMMDD')
+		</if>
+		<if test="date == '3개월'">
+			 and order_DATE >= to_char(add_months(sysdate,-3),'YYYYMMDD')
+		</if>
+		<if test="date == '1년'">
+			 and order_DATE >= to_char(add_months(sysdate,-12),'YYYYMMDD')
+		</if>
+		ORDER BY order_date DESC
+	</select>
+	
+	<select id="getImgOrder" resultType="string">
+	select img_server_name
+	from img_repository
+	where img_key = #{boardNo} and img_level = 0 and img_b_type = 1
+	</select>
+	
+	<resultMap type="Review" id="reviewResultSet">
+		<id column="REVIEW_NO" property="reviewNo"/>
+		<result column="REVIEW_CONTENT" property="reviewContent"/>
+		<result column="REVIEW_DATE" property="reviewDate"/>
+		<result column="PRODUCT_NO" property="productNo"/>
+		<result column="MEMBER_ID" property="memberId"/>
+		<result column="BOARD_NO" property="boardNo"/>
+		<result column="ORDER_NO" property="orderNo"/>
+		<result column="IMG_SERVER_NAME" property="imgRename"/>
+		<result column="board_title" property="productName"/>
+		<result column="PRODUCT_QUANTITY" property="productQuantity"/>
+		<result column="PRODUCT_OPTION" property="productOption"/>
+		<result column="REVIEW_RATING" property="reviewRating"/>
+	</resultMap>
+	
+	<resultMap type="Order" id="orderResultSet">
+		<id column="ORDER_NO" property="orderNo"/>
+		<result column="RECIPIENT" property="recipient"/>
+		<result column="RECI_ADDRESS" property="reciAddress"/>
+		<result column="RECI_PHONE" property="reciPhone"/>
+		<result column="ORDER_DATE" property="orderDate"/>
+		<result column="MEMBER_ID" property="memberId"/>
+		<result column="PRODUCT_NO" property="productNo"/>
+		<result column="board_NO" property="boardNo"/>
+		<result column="STATUS" property="status"/>
+		<result column="PRODUCT_QUANTITY" property="productQuantity"/>
+		<result column="PRODUCT_PRICE" property="salePrice"/>
+		<result column="PRODUCT_OPTION" property="productOption"/>
+		<result column="board_title" property="boardTitle"/>
+		<result column="ORDER_DETAIL_NO" property="orderDetailNo"/>
+		<result column="DELIVERY_MSG" property="deliveryMsg"/>
+		<result column="ORDER_TOTAL_PRICE" property="orderTotalPrice"/>
+	</resultMap>
+	
+	<select id="getMyReviewList" resultMap="reviewResultSet">
+		select * from product_review where order_detail_no = #{orderDetailNo}
+	</select>
+	
+	<select id="getImgReview" resultType="string">
+		select img_server_name
+		from img_repository
+		where img_key = #{reviewNoStr} and img_level = 0 and img_b_type = 7
+	</select>
+	
+	<select id="orderStatusCount" resultType="_int">
+		select count(*)
+		from order_product op
+			join order_detail od using(order_no)
+		where op.member_id = #{memberId} 
+		<if test="orStatus != '구매확정'">
+			and od.status = #{orStatus}
+		</if>
+		<if test="orStatus == '구매확정'">
+			 and (od.status = '구매확정' or od.status = '리뷰작성')
+		</if>
+	</select>
+	
+	<update id="orderStatusChange">
+		update order_detail
+		<if test="change == 1">
+			set status = '구매확정'
+		</if>
+		<if test="change == 2">
+			set status = '주문취소'
+		</if>
+		where order_detail_no = #{orderDetailNo}
+	</update>
+	
+	<insert id="orderCancel">
+	insert into product_cancel
+	values(SEQ_OCID.nextval,#{cancelCate},#{cancelReason},sysdate,#{orderDetailNo})
+	</insert>
+	
+	<update id="orderProductStatusChange">
+	update order_product
+	set ORDER_TOTAL_STATUS = '취소예정'
+	where order_no = #{orderNo}
+	</update>
+	
+	<select id="orderDetailList" resultMap="orderResultSet">
+	select *
+	from order_product  op
+	join order_detail od using(order_no)
+	join product p using(product_no)
+	join board using using(board_no)
+	where order_no = #{orderNo}
+	</select>
+
+	<insert id="insertReview">
+		insert into product_review
+		values(SEQ_RVID.nextval, #{reviewContent}, sysdate, #{productNo}, #{memberId}, #{boardNo}, #{orderDetailNo}, #{reviewRating})
+	</insert>
+	
+	<insert id="insertReviewAttm">
+		insert into IMG_REPOSITORY
+		values(SingleRior_aid, #{attm.imgOriginalName}, #{attm.imgRename}, sysdate, sysdate, default,
+		<if test="reviewNo == 0">
+			seq_rvid.currval,
+		</if>
+		<if test="reviewNo > 0">
+			#{reviewNo},
+		</if>
+		#{attm.imgPath}, #{attm.boardType}, 0)
+	</insert>
+	
+	<update id="updateReviewStatus">
+		update order_detail
+		set status = #{status}
+		where order_detail_no = #{orderDetailNo}
+	</update>
+	
+	<update id="changeDeliveryAddress">
+		update order_product
+		set RECIPIENT = #{recipient} , RECI_ADDRESS =#{reciAddress}, RECI_PHONE = #{reciPhone}, DELIVERY_MSG = #{deliveryMsg}
+		where order_no = #{orderNo}
+	</update>
+	
+	<select id="selectReviewAttmList" resultMap="attachmentResultSet">
+		select *
+		from IMG_REPOSITORY
+		where IMG_STATUS = 'Y' and IMG_B_TYPE = '7'
+	</select>
+	
+	<delete id="deleteReviewAttm">
+		delete from IMG_REPOSITORY
+		where IMG_B_TYPE = '7' and img_key = #{reviewNo}
+	</delete>
+	
+	<update id="updateReview">
+		update product_review
+		set REVIEW_CONTENT = #{reviewContent}, REVIEW_RATING = #{reviewRating}
+		where review_no = #{reviewNo}
+	</update>
+
+	<select id="getOrderCancelCount" resultType="_int">
+	select count(*)
+	from order_product
+    join order_detail using(order_no)
+    where (order_detail.status = '주문취소' or order_detail.status = '환불완료') and order_product.member_id = #{memberId}
+	</select>
+	
+	<select id="orderCancelList" resultMap="orderResultSet">
+	select *
+	from order_product
+    join order_detail using(order_no)
+    join product using(product_no)
+    join board using(board_no)
+    where (order_detail.status = '주문취소' or order_detail.status = '환불완료') and order_product.member_id = #{memberId}
+	</select>
+	
+	
+	<resultMap type="ProductCancel" id="productCancelResultSet">
+		<id column="CANCEL_NO" property="cancelNo"/>
+		<result column="CANCEL_CATE" property="cancelCate"/>
+		<result column="CANCEL_REASON" property="cancelReason"/>
+		<result column="CANCEL_DATE" property="cancelDate"/>
+		<result column="ORDER_DETAIL_NO" property="orderDetailNo"/>
+	</resultMap>
+	
+	<select id="getProductCancel" resultMap="productCancelResultSet">
+	select *
+	from product_cancel
+	where order_detail_no = #{orderDetailNo}
+	</select>
+	
+	<delete id="deleteReview">
+		delete from product_review
+		where review_no = #{reviewNo}
+	</delete>
+	
+	<select id="selectAttmCount" resultType="_int">
+		select count(*)
+		from img_repository
+		where IMG_STATUS = 'Y' and IMG_B_TYPE = '7' and img_key = #{strRNo}
+	</select>
+	
+	<update id="deleteInquiry">
+		update product_inquiry
+		set inquiry_status = 'N'
+		where inquiry_no = #{inquiryNo}
+	</update>
+	
+	<resultMap type="Pay" id="payResultSet">
+		<id column="PAY_NO" property="payNo"/>
+		<result column="PAY_AMOUNT" property="payAmount"/>
+		<result column="PAY_DATE" property="payDate"/>
+		<result column="PAY_STATUS" property="payStatus"/>
+		<result column="ORDER_NO" property="orderNo"/>
+	</resultMap>
+	
+	<select id="getPayInfo" resultMap="payResultSet">
+	select *
+	from pay
+	where order_no = #{orderNo}
+	</select>
+	
+	<resultMap type="LoginLog" id="loginLogResultSet">
+		<id column="MEMBER_ID" property="memberId"/>
+		<result column="LOGIN_TIME" property="loginTime"/>
+		<result column="DATE_TIME" property="dateTime"/>
+		<result column="LOGIN_CHECK" property="loginCheck"/>
+	</resultMap>
+	
+	<select id="searchLog" resultMap="loginLogResultSet">
+		select *
+		from Log
+		where member_id=#{memberId} and login_check='Y'
+	</select>
+	<insert id="insertTime">
+		insert into log log values (#{memberId},to_char(sysdate,'YYYY-MM-DD HH:MI:SS'),to_char(sysdate),'Y') 
+	</insert>
+	<select id="loginCheck" resultMap="loginLogResultSet">
+		select *
+		from log
+		where member_id=#{memberId} and date_time=to_char(sysdate)	
+	</select>
+	<update id="updateTime">
+		update log
+		set login_time=to_char(sysdate,'YYYY-MM-DD HH24:MI:SS')
+		where member_id=#{memberId}
+	</update>
+	<update id="updateCheck">
+		update log
+		set login_check='N'
+		where member_id=#{memberId} and login_check='Y'
+	</update>
+	
+	<select id="checkKNLogin" resultType="string">
+	select member_id
+	from member
+	where email = #{email}
+	</select>
+</mapper>
