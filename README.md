@@ -1,6 +1,6 @@
 # :house: SingleRior 
-*1인 가구를 위한 제품을 선별하여 판매하고, 
-합리적 소비를 위한 플리마켓과 유저들간의 정보교환이 가능한 커뮤니티 제공*
+**1인 가구를 위한 제품을 선별하여 판매하고, 
+합리적 소비를 위한 플리마켓과 유저들간의 정보교환이 가능한 커뮤니티 제공**
 
 ## 구현기능
 - 메인페이지 : 게시판별 리스트 정렬 및 검색 기능
@@ -21,4 +21,14 @@
 배너 및 기획전 등록, 수정, 삭제
 신고글 처리
 방문, 사용자 판매 현황 대시보드 
+
+## 사용기술 및 개발환경
+- OS : Windows  10  / 11
+- Main Language : Java (jdk 11.0.16_9) 
+- Development Tool :  STS,  Oracle 19c with SqlDeveloper
+- Server : Apache Tomcat 9.0
+- Development Language: HTML5, CSS3, JavaScript, jQuery, SQL, JSP, Servlet
+- Team Coop: Github-SourceTree, ERD Cloud, kakao Oven & Figma
+- Open API : Kakao Map API, Import API, Geolocation API
+- Framework : Spring Framework 5.3.23, Mybatis-3.5.7, Maven-3.8.6
 
